@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">FutureBox 상세정보</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">ID</div>
+                <div class="col-md-9" th:text="${futureBox.id}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">UUID</div>
+                <div class="col-md-9" th:text="${futureBox.uuid}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">수신자</div>
+                <div class="col-md-9" th:text="${futureBox.receiver}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">발신자</div>
+                <div class="col-md-9" th:text="${futureBox.sender}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">개봉 여부</div>
+                <div class="col-md-9" th:text="${futureBox.open ? '개봉됨' : '미개봉'}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">영화 타입</div>
+                <div class="col-md-9" th:text="${futureBox.futureMovieType != 0 ? futureBox.futureMovieType : '미지정'}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">기프티콘 타입</div>
+                <div class="col-md-9" th:text="${futureBox.futureGifticonType != 0 ? futureBox.futureGifticonType : '미지정'}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">발명품 타입</div>
+                <div class="col-md-9" th:text="${futureBox.futureInventionType != 0 ? futureBox.futureInventionType : '미지정'}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">생성일</div>
+                <div class="col-md-9" th:text="${#dates.format(futureBox.createdTime, 'yyyy-MM-dd HH:mm')}"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/future-boxes" class="btn btn-secondary">목록으로</a>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

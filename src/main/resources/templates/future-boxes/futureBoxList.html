@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">퓨처박스 목록</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>수신자</th>
+                <th>발신자</th>
+                <th>개봉 여부</th>
+                <th>생성일</th>
+                <th>UUID</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="box : ${futureBoxes}" th:onclick="'window.location.href=\'' + @{/future-boxes/{id}(id=${box.id})} + '\''" style="cursor: pointer;">
+                <td th:text="${box.id}"></td>
+                <td th:text="${box.receiver}"></td>
+                <td th:text="${box.sender}"></td>
+                <td th:text="${box.open ? '개봉됨' : '미개봉'}"></td>
+                <td th:text="${#dates.format(box.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${box.uuid}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
