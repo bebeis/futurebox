@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -153,7 +155,7 @@ public class FutureBoxRepository {
         }
     }
 
-    public FutureBox findByReceiver(String receiver) throws SQLException {
+    public List<FutureBox> findByReceiver(String receiver) throws SQLException {
         String sql = "SELECT * FROM future_box WHERE receiver = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -165,7 +167,8 @@ public class FutureBoxRepository {
             pstmt.setString(1, receiver);
 
             rs = pstmt.executeQuery();
-            if (rs.next()) {
+            List<FutureBox> futureBoxes = new ArrayList<>();
+            while (rs.next()) {
                 FutureBox futureBox = new FutureBox();
                 futureBox.setId(rs.getLong("id"));
                 futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
@@ -176,10 +179,9 @@ public class FutureBoxRepository {
                 futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
                 futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
                 futureBox.setCreatedTime(rs.getTimestamp("created_at"));
-                return futureBox;
-            } else {
-                throw new NoSuchElementException("No such future box with receiver: " + receiver);
+                futureBoxes.add(futureBox);
             }
+            return futureBoxes;
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
@@ -188,7 +190,7 @@ public class FutureBoxRepository {
         }
     }
 
-    public FutureBox findBySender(String sender) throws SQLException {
+    public List<FutureBox> findBySender(String sender) throws SQLException {
         String sql = "SELECT * FROM future_box WHERE sender = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -200,7 +202,8 @@ public class FutureBoxRepository {
             pstmt.setString(1, sender);
 
             rs = pstmt.executeQuery();
-            if (rs.next()) {
+            List<FutureBox> futureBoxes = new ArrayList<>();
+            while (rs.next()) {
                 FutureBox futureBox = new FutureBox();
                 futureBox.setId(rs.getLong("id"));
                 futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
@@ -211,15 +214,48 @@ public class FutureBoxRepository {
                 futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
                 futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
                 futureBox.setCreatedTime(rs.getTimestamp("created_at"));
-                return futureBox;
-            } else {
-                throw new NoSuchElementException("No such future box with sender: " + sender);
+                futureBoxes.add(futureBox);
             }
+            return futureBoxes;
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
         } finally {
             close(con, pstmt, rs);
+        }
+    }
+
+    public List<FutureBox> findAll() throws SQLException {
+        String sql = "SELECT * FROM future_box";
+        Connection con = null;
+        PreparedStatement ptsmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = getConnection();
+            ptsmt = con.prepareStatement(sql);
+            rs = ptsmt.executeQuery();
+
+            List<FutureBox> futureBoxes = new ArrayList<>();
+            while (rs.next()) {
+                FutureBox futureBox = new FutureBox();
+                futureBox.setId(rs.getLong("id"));
+                futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
+                futureBox.setReceiver(rs.getString("receiver"));
+                futureBox.setSender(rs.getString("sender"));
+                futureBox.setOpen(rs.getBoolean("is_opened"));
+                futureBox.setFutureMovieType(rs.getInt("future_movie_type"));
+                futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
+                futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
+                futureBox.setCreatedTime(rs.getTimestamp("created_at"));
+                futureBoxes.add(futureBox);
+            }
+            return futureBoxes;
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, ptsmt, rs);
         }
     }
 

@@ -117,6 +117,24 @@ public class FutureNoteRepository {
         }
     }
 
+    public void deleteByBoxId(Long boxId) throws SQLException {
+        String sql = "DELETE FROM future_note WHERE box_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, boxId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
     public void update(FutureNote futureNote) throws SQLException {
         String sql = "UPDATE future_note SET box_id = ?, message = ? WHERE id = ?";
         Connection con = null;

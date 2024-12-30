@@ -121,6 +121,24 @@ public class FutureFaceMirrorRepository {
         }
     }
 
+    public void deleteByBoxId(Long boxId) throws SQLException {
+        String sql = "DELETE FROM future_face_mirror WHERE box_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, boxId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
     public void update(FutureFaceMirror futureFaceMirror) throws SQLException {
         String sql = "UPDATE future_face_mirror SET box_id = ?, year = ?, image_url = ? WHERE id = ?";
         Connection con = null;

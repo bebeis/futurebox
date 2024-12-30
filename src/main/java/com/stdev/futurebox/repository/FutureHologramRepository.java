@@ -119,6 +119,24 @@ public class FutureHologramRepository {
         }
     }
 
+    public void deleteByBoxId(Long boxId) throws SQLException {
+        String sql = "DELETE FROM future_hologram WHERE box_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, boxId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
     public void update(FutureHologram futureHologram) throws SQLException {
         String sql = "UPDATE future_hologram SET box_id = ?, message = ?, image_url = ? WHERE id = ?";
         Connection con = null;

@@ -136,6 +136,24 @@ public class FutureLottoRepository {
         }
     }
 
+    public void deleteByBoxId(Long boxId) throws SQLException {
+        String sql = "DELETE FROM future_lotto WHERE box_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, boxId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
     private void close(Connection con, Statement stmt, ResultSet rs) {
 
         if (rs != null) {

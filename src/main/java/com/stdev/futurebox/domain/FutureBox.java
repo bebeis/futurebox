@@ -13,13 +13,13 @@ public class FutureBox {
     private String receiver;
     private String sender;
     private Boolean open;
-    private int futureMovieType;
-    private int futureGifticonType;
-    private int futureInventionType;
+    private Integer futureMovieType;
+    private Integer futureGifticonType;
+    private Integer futureInventionType;
     private Timestamp createdTime;
 
-    public FutureBox(UUID uuid, String receiver, String sender, Boolean open, int futureMovieType,
-                     int futureGifticonType, int futureInventionType, Timestamp createdTime) {
+    public FutureBox(UUID uuid, String receiver, String sender, Boolean open, Integer futureMovieType,
+                     Integer futureGifticonType, Integer futureInventionType, Timestamp createdTime) {
         this.uuid = uuid;
         this.receiver = receiver;
         this.sender = sender;
