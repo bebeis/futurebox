@@ -10,3 +10,5 @@ build/
 # gradle
 .gradle/
 
+# class file
+*.class
