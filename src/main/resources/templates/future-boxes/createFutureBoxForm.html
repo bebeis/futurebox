@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">퓨처박스 등록</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form action="/future-boxes/new" method="post" class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="receiver" class="form-label">수신자</label>
+                        <input type="text" class="form-control" id="receiver" name="receiver" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="sender" class="form-label">발신자</label>
+                        <input type="text" class="form-control" id="sender" name="sender" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="futureMovieType" class="form-label">영화 타입</label>
+                        <select class="form-select" id="futureMovieType" name="futureMovieType">
+                            <option value="0">미지정</option>
+                            <option value="1">타입 1</option>
+                            <option value="2">타입 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="futureGifticonType" class="form-label">기프티콘 타입</label>
+                        <select class="form-select" id="futureGifticonType" name="futureGifticonType">
+                            <option value="0">미지정</option>
+                            <option value="1">타입 1</option>
+                            <option value="2">타입 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="futureInventionType" class="form-label">발명품 타입</label>
+                        <select class="form-select" id="futureInventionType" name="futureInventionType">
+                            <option value="0">미지정</option>
+                            <option value="1">타입 1</option>
+                            <option value="2">타입 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="createdTime" class="form-label">생성일</label>
+                        <input type="datetime-local" class="form-control" id="createdTime" name="createdTime" required>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary me-2">등록</button>
+                        <a href="/future-boxes" class="btn btn-secondary">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    // 현재 시간을 yyyy-MM-dd HH:mm 형식으로 설정
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    document.getElementById('createdTime').value = 
+        `${year}-${month}-${day}T${hours}:${minutes}`;
+</script>
+</body>
+</html>

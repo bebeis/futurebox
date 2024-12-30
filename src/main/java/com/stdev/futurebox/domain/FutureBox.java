@@ -29,4 +29,15 @@ public class FutureBox {
         this.futureInventionType = futureInventionType;
         this.createdTime = createdTime;
     }
+
+    public FutureBox(String receiver, String sender, Boolean open, Integer futureMovieType,
+                     Integer futureGifticonType, Integer futureInventionType, Timestamp createdTime) {
+        this.receiver = receiver;
+        this.sender = sender;
+        this.open = open;
+        this.futureMovieType = futureMovieType;
+        this.futureGifticonType = futureGifticonType;
+        this.futureInventionType = futureInventionType;
+        this.createdTime = createdTime;
+    }
 }

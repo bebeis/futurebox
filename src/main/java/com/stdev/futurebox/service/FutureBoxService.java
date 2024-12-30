@@ -76,12 +76,16 @@ public class FutureBoxService {
         }
     }
 
-    public List<FutureBox> findAll() {
+    public List<FutureBox> findAll(String sortField, String sortDirection) {
         try {
-            return futureBoxRepository.findAll();
+            return futureBoxRepository.findAll(sortField, sortDirection);
         } catch (SQLException e) {
             throw new IllegalArgumentException("FutureBox not found.");
         }
+    }
+
+    public List<FutureBox> findAll() {
+        return findAll("created_at", "DESC");
     }
 
     @Transactional

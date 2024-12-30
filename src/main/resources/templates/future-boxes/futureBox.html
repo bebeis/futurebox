@@ -6,6 +6,11 @@
 <div class="container">
     <h2 class="text-center my-4">FutureBox 상세정보</h2>
 
+    </div>
+    <!--저장 완료 -->
+        <h2 th:if="${param.status}" th:text="'저장 완료'"></h2>
+    <div>
+
     <div class="card">
         <div class="card-body">
             <div class="row mb-3">

@@ -9,8 +9,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Random;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @Slf4j
+@SpringBootTest
 class FutureBoxRepositoryTest {
 
     FutureBoxRepository repository = new FutureBoxRepository();
@@ -32,6 +37,5 @@ class FutureBoxRepositoryTest {
         // 저장된 객체와 조회된 객체가 동일한지 검증
         assertThat(findFutureBox).isEqualTo(savedFutureBox);
     }
-
 
 }

@@ -34,9 +34,9 @@ public class FutureBoxRepository {
             pstmt.setString(2, futureBox.getReceiver());
             pstmt.setString(3, futureBox.getSender());
             pstmt.setBoolean(4, futureBox.getOpen());
-            pstmt.setInt(5, futureBox.getFutureMovieType());
-            pstmt.setInt(6, futureBox.getFutureGifticonType());
-            pstmt.setInt(7, futureBox.getFutureInventionType());
+            pstmt.setObject(5, futureBox.getFutureMovieType());
+            pstmt.setObject(6, futureBox.getFutureGifticonType());
+            pstmt.setObject(7, futureBox.getFutureInventionType());
             pstmt.setTimestamp(8, futureBox.getCreatedTime());
             rs = pstmt.executeQuery();
 
@@ -225,8 +225,10 @@ public class FutureBoxRepository {
         }
     }
 
-    public List<FutureBox> findAll() throws SQLException {
-        String sql = "SELECT * FROM future_box";
+    public List<FutureBox> findAll(String sortField, String sortDirection) throws SQLException {
+        String sql = "SELECT * FROM future_box ORDER BY " + 
+                    (sortField != null ? sortField : "created_at") + 
+                    " " + (sortDirection != null ? sortDirection : "DESC");
         Connection con = null;
         PreparedStatement ptsmt = null;
         ResultSet rs = null;
