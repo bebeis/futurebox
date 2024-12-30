@@ -9,8 +9,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 
 @Slf4j
+@Repository
 public class FutureLottoRepository {
     public void save(FutureLotto futureLotto) throws SQLException {
         String sql = "INSERT INTO future_lotto (box_id, lotto_number) VALUES (?, ?)";
@@ -59,6 +61,73 @@ public class FutureLottoRepository {
             } else {
                 throw new NoSuchElementException("FutureLotto not found id=" + id);
             }
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
+    public FutureLotto findByBoxId(Long boxId) throws SQLException {
+        String sql = "SELECT * FROM future_lotto WHERE box_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, boxId);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                FutureLotto futureLotto = new FutureLotto();
+                futureLotto.setId(rs.getLong("id"));
+                futureLotto.setBoxId(rs.getLong("box_id"));
+                futureLotto.setNumbers((int[]) rs.getArray("lotto_number").getArray());
+                return futureLotto;
+            } else {
+                throw new NoSuchElementException("FutureLotto not found box_id=" + boxId);
+            }
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
+    public void deleteById(Long id) throws SQLException {
+        String sql = "DELETE FROM future_lotto WHERE id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
+    public void update(FutureLotto futureLotto) throws SQLException {
+        String sql = "UPDATE future_lotto SET box_id = ?, lotto_number = ? WHERE id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, futureLotto.getBoxId());
+            pstmt.setObject(2, futureLotto.getNumbers());
+            pstmt.setLong(3, futureLotto.getId());
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;

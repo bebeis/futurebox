@@ -1,0 +1,12 @@
+# 빌드 파일
+build/
+
+# 로컬 환경 파일
+.env
+
+# idea
+.idea/
+
+# gradle
+.gradle/
+

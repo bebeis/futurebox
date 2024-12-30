@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FutureboxApplication {
+public class FutureBoxApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FutureboxApplication.class, args);
+		SpringApplication.run(FutureBoxApplication.class, args);
 	}
 
 }
