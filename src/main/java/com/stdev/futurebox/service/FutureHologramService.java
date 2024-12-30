@@ -4,9 +4,13 @@ import com.stdev.futurebox.domain.FutureHologram;
 import com.stdev.futurebox.repository.FutureHologramRepository;
 import java.sql.SQLException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,8 +40,8 @@ public class FutureHologramService {
     public FutureHologram findByBoxId(Long boxId) {
         try {
             return futureHologramRepository.findByBoxId(boxId);
-        } catch (SQLException e) {
-            throw new IllegalArgumentException("FutureHologram not found.");
+        } catch (Exception e) {
+            return null;
         }
     }
 

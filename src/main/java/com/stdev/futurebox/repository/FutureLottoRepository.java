@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FutureLottoRepository {
     public void save(FutureLotto futureLotto) throws SQLException {
-        String sql = "INSERT INTO future_lotto (box_id, lotto_number) VALUES (?, ?)";
+        String sql = "INSERT INTO future_lotto (box_id, numbers) VALUES (?, ?) RETURNING id";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -56,7 +56,14 @@ public class FutureLottoRepository {
                 FutureLotto futureLotto = new FutureLotto();
                 futureLotto.setId(rs.getLong("id"));
                 futureLotto.setBoxId(rs.getLong("box_id"));
-                futureLotto.setNumbers((int[]) rs.getArray("lotto_number").getArray());
+                
+                Object[] objArray = (Object[]) rs.getArray("numbers").getArray();
+                int[] intArray = new int[objArray.length];
+                for (int i = 0; i < objArray.length; i++) {
+                    intArray[i] = ((Integer) objArray[i]).intValue();
+                }
+                futureLotto.setNumbers(intArray);
+                
                 return futureLotto;
             } else {
                 throw new NoSuchElementException("FutureLotto not found id=" + id);
@@ -65,7 +72,7 @@ public class FutureLottoRepository {
             log.error("db error", e);
             throw e;
         } finally {
-            close(con, pstmt, null);
+            close(con, pstmt, rs);
         }
     }
 
@@ -85,11 +92,17 @@ public class FutureLottoRepository {
                 FutureLotto futureLotto = new FutureLotto();
                 futureLotto.setId(rs.getLong("id"));
                 futureLotto.setBoxId(rs.getLong("box_id"));
-                futureLotto.setNumbers((int[]) rs.getArray("lotto_number").getArray());
+                
+                Object[] objArray = (Object[]) rs.getArray("numbers").getArray();
+                int[] intArray = new int[objArray.length];
+                for (int i = 0; i < objArray.length; i++) {
+                    intArray[i] = ((Integer) objArray[i]).intValue();
+                }
+                futureLotto.setNumbers(intArray);
+                
                 return futureLotto;
-            } else {
-                throw new NoSuchElementException("FutureLotto not found box_id=" + boxId);
             }
+            return null;
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
@@ -117,7 +130,7 @@ public class FutureLottoRepository {
     }
 
     public void update(FutureLotto futureLotto) throws SQLException {
-        String sql = "UPDATE future_lotto SET box_id = ?, lotto_number = ? WHERE id = ?";
+        String sql = "UPDATE future_lotto SET box_id = ?, numbers = ? WHERE id = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
 

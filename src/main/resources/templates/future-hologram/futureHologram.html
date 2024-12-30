@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">Hologram 상세정보</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">ID</div>
+                <div class="col-md-9" th:text="${hologram.id}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Box ID</div>
+                <div class="col-md-9" th:text="${hologram.boxId}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">메시지</div>
+                <div class="col-md-9" th:text="${hologram.message}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">이미지</div>
+                <div class="col-md-9">
+                    <img th:src="${hologram.imageUrl}" alt="홀로그램 이미지" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/future-hologram/edit/{id}(id=${hologram.id})}" class="btn btn-primary me-2">수정</a>
+        <button onclick="deleteHologram()" class="btn btn-danger me-2">삭제</button>
+        <a th:href="@{/future-boxes/{id}(id=${hologram.boxId})}" class="btn btn-secondary">FutureBox로 돌아가기</a>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+function deleteHologram() {
+    if (confirm('정말로 이 Hologram을 삭제하시겠습니까?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/future-hologram/delete/' + [[${hologram.id}]];
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+</body>
+</html> 

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FutureNoteRepository {
     public FutureNote save(FutureNote futureNote) throws SQLException {
-        String sql = "INSERT INTO future_note (box_id, message) VALUES (?, ?)";
+        String sql = "INSERT INTO future_note (box_id, message) VALUES (?, ?) RETURNING id";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -25,6 +25,7 @@ public class FutureNoteRepository {
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, futureNote.getBoxId());
             pstmt.setString(2, futureNote.getMessage());
+            log.info("futureNote = {}", futureNote);
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
@@ -88,9 +89,9 @@ public class FutureNoteRepository {
                 futureNote.setBoxId(rs.getLong("box_id"));
                 futureNote.setMessage(rs.getString("message"));
                 return futureNote;
-            } else {
-                throw new NoSuchElementException("FutureNote not found box_id=" + boxId);
-            }
+            } 
+
+            return null;
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;

@@ -38,8 +38,8 @@ public class FutureFaceMirrorService {
     public FutureFaceMirror findByBoxId(Long boxId) {
         try {
             return futureFaceMirrorRepository.findByBoxId(boxId);
-        } catch (SQLException e) {
-            throw new IllegalArgumentException("FutureFaceMirror not found.");
+        } catch (Exception e) {
+            return null;
         }
     }
 

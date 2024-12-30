@@ -3,6 +3,8 @@ package com.stdev.futurebox.service;
 import com.stdev.futurebox.domain.FutureLotto;
 import com.stdev.futurebox.repository.FutureLottoRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class FutureLottoService {
+
+    private static final Logger log = LoggerFactory.getLogger(FutureLottoService.class);
 
     private final FutureLottoRepository futureLottoRepository;
 
@@ -36,7 +40,8 @@ public class FutureLottoService {
         try {
             return futureLottoRepository.findByBoxId(boxId);
         } catch (Exception e) {
-            throw new IllegalArgumentException("FutureLotto not found.");
+            log.warn("FutureLotto를 찾을 수 없습니다: boxId={}", boxId, e);
+            return null;
         }
     }
 

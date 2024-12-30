@@ -4,6 +4,10 @@ import com.stdev.futurebox.domain.FutureBox;
 import com.stdev.futurebox.dto.FutureBoxCreateForm;
 import com.stdev.futurebox.service.FutureBoxService;
 import com.stdev.futurebox.service.FutureTypeService;
+import com.stdev.futurebox.service.FutureFaceMirrorService;
+import com.stdev.futurebox.service.FutureHologramService;
+import com.stdev.futurebox.service.FutureLottoService;
+import com.stdev.futurebox.service.FutureNoteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -29,6 +33,10 @@ public class FutureBoxController {
 
     private final FutureBoxService futureBoxService;
     private final FutureTypeService futureTypeService;
+    private final FutureFaceMirrorService futureFaceMirrorService;
+    private final FutureHologramService futureHologramService;
+    private final FutureLottoService futureLottoService;
+    private final FutureNoteService futureNoteService;
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "1") int page,
@@ -59,7 +67,7 @@ public class FutureBoxController {
     public String futureBox(@PathVariable Long futureBoxId, Model model) {
         FutureBox futureBox = futureBoxService.findById(futureBoxId);
         
-        // 각 타입 정보 조회
+        // 각 타입 정보 조회 - null 체크 추가
         if (futureBox.getFutureMovieType() != null) {
             model.addAttribute("movieType", 
                 futureTypeService.findMovieById(futureBox.getFutureMovieType().longValue()));
@@ -72,6 +80,12 @@ public class FutureBoxController {
             model.addAttribute("inventionType", 
                 futureTypeService.findInventionById(futureBox.getFutureInventionType().longValue()));
         }
+        
+        // 관련 데이터 조회 - null이어도 모델에 추가
+        model.addAttribute("faceMirror", futureFaceMirrorService.findByBoxId(futureBoxId));
+        model.addAttribute("hologram", futureHologramService.findByBoxId(futureBoxId));
+        model.addAttribute("lotto", futureLottoService.findByBoxId(futureBoxId));
+        model.addAttribute("note", futureNoteService.findByBoxId(futureBoxId));
         
         model.addAttribute("futureBox", futureBox);
         return "future-boxes/futureBox";
@@ -86,7 +100,7 @@ public class FutureBoxController {
     }
 
     @PostMapping("/new")
-    public String create(@ModelAttribute FutureBoxCreateForm form, RedirectAttributes redirectAttributes) {
+    public String create(FutureBoxCreateForm form, RedirectAttributes redirectAttributes) {
         FutureBox formEntity = form.toEntity();
         futureBoxService.create(formEntity);
         redirectAttributes.addAttribute("futureBoxId", formEntity.getId());

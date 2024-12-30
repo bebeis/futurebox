@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FutureHologramRepository {
     public void save(FutureHologram futureHologram) throws SQLException {
-        String sql = "INSERT INTO future_hologram (box_id, message, image_url) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO future_hologram (box_id, message, image_url) VALUES (?, ?, ?) Returning id";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -90,14 +90,13 @@ public class FutureHologramRepository {
                 futureHologram.setMessage(rs.getString("message"));
                 futureHologram.setImageUrl(rs.getString("image_url"));
                 return futureHologram;
-            } else {
-                throw new NoSuchElementException("FutureHologram not found box_id=" + boxId);
             }
+            return null;
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
         } finally {
-            close(con, pstmt, null);
+            close(con, pstmt, rs);
         }
     }
 

@@ -3,9 +3,12 @@ package com.stdev.futurebox.service;
 import com.stdev.futurebox.domain.FutureNote;
 import com.stdev.futurebox.repository.FutureNoteRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -36,7 +39,7 @@ public class FutureNoteService {
         try {
             return futureNoteRepository.findByBoxId(boxId);
         } catch (Exception e) {
-            throw new IllegalArgumentException("FutureNote not found.");
+            return null;
         }
     }
 

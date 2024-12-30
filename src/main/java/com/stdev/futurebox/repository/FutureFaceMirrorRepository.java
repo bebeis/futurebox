@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 public class FutureFaceMirrorRepository {
 
     public void save(FutureFaceMirror futureFaceMirror) throws SQLException {
-        String sql = "INSERT INTO future_face_mirror (box_id, year, image_url) values (?, ?, ?)";
+        String sql = "INSERT INTO future_face_mirror (box_id, year, image_url) values (?, ?, ?) Returning id";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -92,14 +92,13 @@ public class FutureFaceMirrorRepository {
                 futureFaceMirror.setYear(rs.getInt("year"));
                 futureFaceMirror.setImageUrl(rs.getString("image_url"));
                 return futureFaceMirror;
-            } else {
-                throw new NoSuchElementException("FutureFaceMirror not found box_id=" + boxId);
             }
+            return null;
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
         } finally {
-            close(con, pstmt, null);
+            close(con, pstmt, rs);
         }
     }
 

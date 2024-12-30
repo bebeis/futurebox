@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">Face Mirror 상세정보</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">ID</div>
+                <div class="col-md-9" th:text="${faceMirror.id}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Box ID</div>
+                <div class="col-md-9" th:text="${faceMirror.boxId}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">년도</div>
+                <div class="col-md-9" th:text="${faceMirror.year}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">이미지</div>
+                <div class="col-md-9">
+                    <img th:src="${faceMirror.imageUrl}" class="img-fluid" alt="Face Mirror Image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/future-face-mirror/edit/{id}(id=${faceMirror.id})}" 
+           class="btn btn-primary me-2">수정</a>
+        <button onclick="deleteFaceMirror()" class="btn btn-danger me-2">삭제</button>
+        <a th:href="@{/future-boxes/{id}(id=${faceMirror.boxId})}" 
+           class="btn btn-secondary">FutureBox로 돌아가기</a>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+function deleteFaceMirror() {
+    if (confirm('정말로 이 Face Mirror를 삭제하시겠습니까?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/future-face-mirror/delete/' + [[${faceMirror.id}]];
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+</body>
+</html> 
