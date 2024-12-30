@@ -1,2 +1,0 @@
-¹01:00:23.153 [Test worker] INFO com.stdev.futurebox.connection.DBConnectionUtil -- get connection=org.postgresql.jdbc.PgConnection@28d6290, class=class org.postgresql.jdbc.PgConnection
-º01:00:24.054 [Test worker] INFO com.stdev.futurebox.connection.DBConnectionUtil -- get connection=org.postgresql.jdbc.PgConnection@644c78d4, class=class org.postgresql.jdbc.PgConnection
