@@ -11,4 +11,11 @@ public class FutureGifticon {
     private String description;
     private String imageUrl;
     private String detailImageUrl;
+
+    public FutureGifticon(String name, String description, String imageUrl, String detailImageUrl) {
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.detailImageUrl = detailImageUrl;
+    }
 }

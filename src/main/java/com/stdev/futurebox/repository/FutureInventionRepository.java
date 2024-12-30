@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
 public class FutureInventionRepository {
 
     public void save(FutureInvention futureInvention) throws SQLException {
-        String sql = "INSERT INTO future_invention (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO future_invention_types (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?) RETURNING id";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -36,18 +36,18 @@ public class FutureInventionRepository {
             if (rs.next()) {
                 futureInvention.setId(rs.getLong("id"));
             } else {
-                throw new SQLException("Creating FutureInvention failed, no ID obtained.");
+                throw new SQLException("발명품 생성 실패: ID를 받지 못했습니다.");
             }
         } catch (SQLException e) {
-            log.error("db error", e);
+            log.error("데이터베이스 오류", e);
             throw e;
         } finally {
-            close(con, pstmt, null);
+            close(con, pstmt, rs);
         }
     }
 
     public FutureInvention findById(Long id) throws SQLException {
-        String sql = "SELECT * FROM future_invention WHERE id = ?";
+        String sql = "SELECT * FROM future_invention_types WHERE id = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -78,7 +78,7 @@ public class FutureInventionRepository {
     }
 
     public List<FutureInvention> findAll() throws SQLException {
-        String sql = "SELECT * FROM future_invention";
+        String sql = "SELECT * FROM future_invention_types";
         Connection con = null;
         Statement stmt = null;
         ResultSet rs = null;
@@ -109,7 +109,7 @@ public class FutureInventionRepository {
     }
 
     public void delete(Long id) throws SQLException {
-        String sql = "DELETE FROM future_invention WHERE id = ?";
+        String sql = "DELETE FROM future_invention_types WHERE id = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
 
@@ -127,7 +127,7 @@ public class FutureInventionRepository {
     }
 
     public void update(FutureInvention futureInvention) throws SQLException {
-        String sql = "UPDATE future_invention SET name = ?, description = ?, image_url = ?, detail_image_url = ? WHERE id = ?";
+        String sql = "UPDATE future_invention_types SET name = ?, description = ?, image_url = ?, detail_image_url = ? WHERE id = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
 

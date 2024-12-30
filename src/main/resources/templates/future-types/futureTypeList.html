@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">FutureType 관리</h2>
+
+    <!-- 영화 타입 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">영화 타입</h5>
+            <button class="btn btn-primary btn-sm" onclick="location.href='/future-types/movies/new'">
+                새로운 영화 타입
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>이름</th>
+                        <th>설명</th>
+                        <th>작업</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="movie : ${movies}">
+                        <td th:text="${movie.id}"></td>
+                        <td th:text="${movie.name}"></td>
+                        <td th:text="${movie.description}"></td>
+                        <td>
+                            <a th:href="@{/future-types/movies/edit/{id}(id=${movie.id})}" 
+                               class="btn btn-warning btn-sm">수정</a>
+                            <button th:onclick="'deleteMovie(' + ${movie.id} + ')'" 
+                                    class="btn btn-danger btn-sm">삭제</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 기프티콘 타입 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">기프티콘 타입</h5>
+            <button class="btn btn-primary btn-sm" onclick="location.href='/future-types/gifticons/new'">
+                새로운 기프티콘 타입
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>이름</th>
+                        <th>설명</th>
+                        <th>작업</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="gifticon : ${gifticons}">
+                        <td th:text="${gifticon.id}"></td>
+                        <td th:text="${gifticon.name}"></td>
+                        <td th:text="${gifticon.description}"></td>
+                        <td>
+                            <a th:href="@{/future-types/gifticons/edit/{id}(id=${gifticon.id})}" 
+                               class="btn btn-warning btn-sm">수정</a>
+                            <button th:onclick="'deleteGifticon(' + ${gifticon.id} + ')'" 
+                                    class="btn btn-danger btn-sm">삭제</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 발명품 타입 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">발명품 타입</h5>
+            <button class="btn btn-primary btn-sm" onclick="location.href='/future-types/inventions/new'">
+                새로운 발명품 타입
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>이름</th>
+                        <th>설명</th>
+                        <th>작업</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="invention : ${inventions}">
+                        <td th:text="${invention.id}"></td>
+                        <td th:text="${invention.name}"></td>
+                        <td th:text="${invention.description}"></td>
+                        <td>
+                            <a th:href="@{/future-types/inventions/edit/{id}(id=${invention.id})}" 
+                               class="btn btn-warning btn-sm">수정</a>
+                            <button th:onclick="'deleteInvention(' + ${invention.id} + ')'" 
+                                    class="btn btn-danger btn-sm">삭제</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/future-boxes" class="btn btn-secondary">FutureBox 목록으로</a>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+function deleteMovie(id) {
+    if (confirm('이 영화 타입을 삭제하시겠습니까?')) {
+        fetch(`/future-types/movies/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (response.ok) location.reload();
+                else alert('삭제 실패');
+            });
+    }
+}
+
+function deleteGifticon(id) {
+    if (confirm('이 기프티콘 타입을 삭제하시겠습니까?')) {
+        fetch(`/future-types/gifticons/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (response.ok) location.reload();
+                else alert('삭제 실패');
+            });
+    }
+}
+
+function deleteInvention(id) {
+    if (confirm('이 발명품 타입을 삭제하시겠습니까?')) {
+        fetch(`/future-types/inventions/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (response.ok) location.reload();
+                else alert('삭제 실패');
+            });
+    }
+}
+</script>
+</body>
+</html> 

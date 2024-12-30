@@ -34,8 +34,12 @@
                         <label for="futureMovieType" class="form-label">영화 타입</label>
                         <select class="form-select" id="futureMovieType" name="futureMovieType">
                             <option value="0" th:selected="${futureBox.futureMovieType == null}">미지정</option>
-                            <option value="1" th:selected="${futureBox.futureMovieType == 1}">타입 1</option>
-                            <option value="2" th:selected="${futureBox.futureMovieType == 2}">타입 2</option>
+                            <th:block th:each="movie : ${movies}">
+                                <option th:value="${movie.id}" 
+                                        th:text="${movie.name}"
+                                        th:selected="${futureBox.futureMovieType == movie.id}">
+                                </option>
+                            </th:block>
                         </select>
                     </div>
 
@@ -43,8 +47,12 @@
                         <label for="futureGifticonType" class="form-label">기프티콘 타입</label>
                         <select class="form-select" id="futureGifticonType" name="futureGifticonType">
                             <option value="0" th:selected="${futureBox.futureGifticonType == null}">미지정</option>
-                            <option value="1" th:selected="${futureBox.futureGifticonType == 1}">타입 1</option>
-                            <option value="2" th:selected="${futureBox.futureGifticonType == 2}">타입 2</option>
+                            <th:block th:each="gifticon : ${gifticons}">
+                                <option th:value="${gifticon.id}" 
+                                        th:text="${gifticon.name}"
+                                        th:selected="${futureBox.futureGifticonType == gifticon.id}">
+                                </option>
+                            </th:block>
                         </select>
                     </div>
 
@@ -52,8 +60,12 @@
                         <label for="futureInventionType" class="form-label">발명품 타입</label>
                         <select class="form-select" id="futureInventionType" name="futureInventionType">
                             <option value="0" th:selected="${futureBox.futureInventionType == null}">미지정</option>
-                            <option value="1" th:selected="${futureBox.futureInventionType == 1}">타입 1</option>
-                            <option value="2" th:selected="${futureBox.futureInventionType == 2}">타입 2</option>
+                            <th:block th:each="invention : ${inventions}">
+                                <option th:value="${invention.id}" 
+                                        th:text="${invention.name}"
+                                        th:selected="${futureBox.futureInventionType == invention.id}">
+                                </option>
+                            </th:block>
                         </select>
                     </div>
 

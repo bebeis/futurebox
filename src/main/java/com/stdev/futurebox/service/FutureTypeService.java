@@ -4,6 +4,7 @@ import com.stdev.futurebox.cache.FutureTypeCache;
 import com.stdev.futurebox.domain.FutureGifticon;
 import com.stdev.futurebox.domain.FutureInvention;
 import com.stdev.futurebox.domain.FutureMovie;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,19 @@ public class FutureTypeService {
     public FutureInvention findInventionById(Long id) {
         return futureTypeCache.findFutureInventionById(id);
     }
+
+    public List<FutureMovie> findFutureMoviesAll() {
+        return futureTypeCache.findFutureMovieAll();
+    }
+
+    public List<FutureGifticon> findFutureGifticonsAll() {
+        return futureTypeCache.findFutureGifticonAll();
+    }
+
+    public List<FutureInvention> findFutureInventionsAll() {
+        return futureTypeCache.findFutureInventionAll();
+    }
+
 
     public void updateFutureMovie(FutureMovie futureMovie) {
         try {

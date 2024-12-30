@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 public class FutureGifticonRepository {
     public void save(FutureGifticon futureGifticon) throws SQLException {
-        String sql = "INSERT INTO future_gifticon_types (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO future_gifticon_types (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?) RETURNING id";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -40,7 +40,7 @@ public class FutureGifticonRepository {
             log.error("db error", e);
             throw e;
         } finally {
-            close(con, pstmt, null);
+            close(con, pstmt, rs);
         }
     }
 

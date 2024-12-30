@@ -35,15 +35,15 @@
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">영화 타입</div>
-                <div class="col-md-9" th:text="${futureBox.futureMovieType != 0 ? futureBox.futureMovieType : '미지정'}"></div>
+                <div class="col-md-9" th:text="${movieType != null ? movieType.name : '미지정'}"></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">기프티콘 타입</div>
-                <div class="col-md-9" th:text="${futureBox.futureGifticonType != 0 ? futureBox.futureGifticonType : '미지정'}"></div>
+                <div class="col-md-9" th:text="${gifticonType != null ? gifticonType.name : '미지정'}"></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">발명품 타입</div>
-                <div class="col-md-9" th:text="${futureBox.futureInventionType != 0 ? futureBox.futureInventionType : '미지정'}"></div>
+                <div class="col-md-9" th:text="${inventionType != null ? inventionType.name : '미지정'}"></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">생성일</div>

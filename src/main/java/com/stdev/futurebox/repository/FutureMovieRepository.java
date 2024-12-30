@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 public class FutureMovieRepository {
 
     public void save(FutureMovie futureMovie) throws SQLException {
-        String sql = "INSERT INTO future_movie_types (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO future_movie_types (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?) RETURNING id";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -35,18 +35,18 @@ public class FutureMovieRepository {
             if (rs.next()) {
                 futureMovie.setId(rs.getLong("id"));
             } else {
-                throw new SQLException("Creating FutureMovie failed, no ID obtained.");
+                throw new SQLException("영화 생성 실패: ID를 받지 못했습니다.");
             }
         } catch (SQLException e) {
-            log.error("db error", e);
+            log.error("데이터베이스 오류", e);
             throw e;
         } finally {
-            close(con, pstmt, null);
+            close(con, pstmt, rs);
         }
     }
 
     public FutureMovie findById(Long id) throws SQLException {
-        String sql = "SELECT * FROM future_gifticon_types WHERE id = ?";
+        String sql = "SELECT * FROM future_movie_types WHERE id = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

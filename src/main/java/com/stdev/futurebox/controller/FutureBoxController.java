@@ -3,6 +3,7 @@ package com.stdev.futurebox.controller;
 import com.stdev.futurebox.domain.FutureBox;
 import com.stdev.futurebox.dto.FutureBoxCreateForm;
 import com.stdev.futurebox.service.FutureBoxService;
+import com.stdev.futurebox.service.FutureTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class FutureBoxController {
 
     private final FutureBoxService futureBoxService;
+    private final FutureTypeService futureTypeService;
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "1") int page,
@@ -55,12 +57,31 @@ public class FutureBoxController {
 
     @GetMapping("/{futureBoxId}")
     public String futureBox(@PathVariable Long futureBoxId, Model model) {
-        model.addAttribute("futureBox", futureBoxService.findById(futureBoxId));
+        FutureBox futureBox = futureBoxService.findById(futureBoxId);
+        
+        // 각 타입 정보 조회
+        if (futureBox.getFutureMovieType() != null) {
+            model.addAttribute("movieType", 
+                futureTypeService.findMovieById(futureBox.getFutureMovieType().longValue()));
+        }
+        if (futureBox.getFutureGifticonType() != null) {
+            model.addAttribute("gifticonType", 
+                futureTypeService.findGifticonById(futureBox.getFutureGifticonType().longValue()));
+        }
+        if (futureBox.getFutureInventionType() != null) {
+            model.addAttribute("inventionType", 
+                futureTypeService.findInventionById(futureBox.getFutureInventionType().longValue()));
+        }
+        
+        model.addAttribute("futureBox", futureBox);
         return "future-boxes/futureBox";
     }
 
     @GetMapping("/new")
-    public String createForm() {
+    public String createForm(Model model) {
+        model.addAttribute("movies", futureTypeService.findFutureMoviesAll());
+        model.addAttribute("gifticons", futureTypeService.findFutureGifticonsAll());
+        model.addAttribute("inventions", futureTypeService.findFutureInventionsAll());
         return "future-boxes/createFutureBoxForm";
     }
 
@@ -154,7 +175,14 @@ public class FutureBoxController {
 
     @GetMapping("/edit/{futureBoxId}")
     public String editForm(@PathVariable Long futureBoxId, Model model) {
-        model.addAttribute("futureBox", futureBoxService.findById(futureBoxId));
+        FutureBox futureBox = futureBoxService.findById(futureBoxId);
+        model.addAttribute("futureBox", futureBox);
+        
+        // 타입 목록 추가
+        model.addAttribute("movies", futureTypeService.findFutureMoviesAll());
+        model.addAttribute("gifticons", futureTypeService.findFutureGifticonsAll());
+        model.addAttribute("inventions", futureTypeService.findFutureInventionsAll());
+        
         return "future-boxes/editFutureBoxForm";
     }
 
