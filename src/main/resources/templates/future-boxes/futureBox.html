@@ -53,8 +53,24 @@
     </div>
 
     <div class="text-center mt-4">
+        <a th:href="@{/future-boxes/edit/{id}(id=${futureBox.id})}" class="btn btn-primary me-2">수정</a>
+        <button onclick="deleteFutureBox()" class="btn btn-danger me-2">삭제</button>
+        <a href="/future-boxes/new" class="btn btn-success me-2">새로 만들기</a>
         <a href="/future-boxes" class="btn btn-secondary">목록으로</a>
     </div>
+
+    <!-- 삭제를 위한 폼 추가 -->
+    <form id="deleteForm" th:action="@{/future-boxes/delete}" method="post" style="display: none;">
+        <input type="hidden" name="selectedIds" th:value="${futureBox.id}">
+    </form>
+
+    <script>
+    function deleteFutureBox() {
+        if (confirm('정말로 이 FutureBox를 삭제하시겠습니까?')) {
+            document.getElementById('deleteForm').submit();
+        }
+    }
+    </script>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

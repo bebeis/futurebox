@@ -152,6 +152,22 @@ public class FutureBoxController {
         return "future-boxes/futureBoxList";
     }
 
+    @GetMapping("/edit/{futureBoxId}")
+    public String editForm(@PathVariable Long futureBoxId, Model model) {
+        model.addAttribute("futureBox", futureBoxService.findById(futureBoxId));
+        return "future-boxes/editFutureBoxForm";
+    }
+
+    @PostMapping("/edit/{futureBoxId}")
+    public String edit(@PathVariable Long futureBoxId, @ModelAttribute FutureBoxCreateForm form, RedirectAttributes redirectAttributes) {
+        FutureBox formEntity = form.toEntity();
+        formEntity.setId(futureBoxId);
+        futureBoxService.update(formEntity);
+        redirectAttributes.addAttribute("futureBoxId", futureBoxId);
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/future-boxes/{futureBoxId}";
+    }
+
     @PostMapping("/delete")
     public String deleteSelected(@RequestParam("selectedIds") List<Long> ids, RedirectAttributes redirectAttributes) {
         for (Long id : ids) {

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">FutureBox 수정</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form th:action="@{/future-boxes/edit/{id}(id=${futureBox.id})}" method="post" class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="receiver" class="form-label">수신자</label>
+                        <input type="text" class="form-control" id="receiver" name="receiver" 
+                               th:value="${futureBox.receiver}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="sender" class="form-label">발신자</label>
+                        <input type="text" class="form-control" id="sender" name="sender" 
+                               th:value="${futureBox.sender}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="open" class="form-label">개봉 여부</label>
+                        <select class="form-select" id="open" name="open">
+                            <option value="false" th:selected="${!futureBox.open}">미개봉</option>
+                            <option value="true" th:selected="${futureBox.open}">개봉됨</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="futureMovieType" class="form-label">영화 타입</label>
+                        <select class="form-select" id="futureMovieType" name="futureMovieType">
+                            <option value="0" th:selected="${futureBox.futureMovieType == null}">미지정</option>
+                            <option value="1" th:selected="${futureBox.futureMovieType == 1}">타입 1</option>
+                            <option value="2" th:selected="${futureBox.futureMovieType == 2}">타입 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="futureGifticonType" class="form-label">기프티콘 타입</label>
+                        <select class="form-select" id="futureGifticonType" name="futureGifticonType">
+                            <option value="0" th:selected="${futureBox.futureGifticonType == null}">미지정</option>
+                            <option value="1" th:selected="${futureBox.futureGifticonType == 1}">타입 1</option>
+                            <option value="2" th:selected="${futureBox.futureGifticonType == 2}">타입 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="futureInventionType" class="form-label">발명품 타입</label>
+                        <select class="form-select" id="futureInventionType" name="futureInventionType">
+                            <option value="0" th:selected="${futureBox.futureInventionType == null}">미지정</option>
+                            <option value="1" th:selected="${futureBox.futureInventionType == 1}">타입 1</option>
+                            <option value="2" th:selected="${futureBox.futureInventionType == 2}">타입 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="createdTime" class="form-label">생성일</label>
+                        <input type="datetime-local" class="form-control" id="createdTime" name="createdTime" required>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary me-2">수정</button>
+                        <a th:href="@{/future-boxes/{id}(id=${futureBox.id})}" class="btn btn-secondary">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    // 생성일 값을 설정
+    const createdTime = /*[[${#dates.format(futureBox.createdTime, 'yyyy-MM-dd HH:mm')}]]*/ '';
+    const formattedTime = createdTime.replace(' ', 'T');
+    document.getElementById('createdTime').value = formattedTime;
+</script>
+</body>
+</html>

@@ -280,22 +280,21 @@ public class FutureBoxRepository {
     }
 
     public void update(FutureBox futureBox) throws SQLException {
-        String sql = "UPDATE future_box SET uuid = ?, receiver = ?, sender = ?, is_opened = ?, future_movie_type = ?, future_gifticon_type = ?, future_invention_type = ?, created_at = ? WHERE id = ?";
+        String sql = "UPDATE future_box SET receiver = ?, sender = ?, is_opened = ?, future_movie_type = ?, future_gifticon_type = ?, future_invention_type = ?, created_at = ? WHERE id = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
 
         try {
             con = getConnection();
             pstmt = con.prepareStatement(sql);
-            pstmt.setObject(1, futureBox.getUuid());
-            pstmt.setString(2, futureBox.getReceiver());
-            pstmt.setString(3, futureBox.getSender());
-            pstmt.setBoolean(4, futureBox.getOpen());
-            pstmt.setInt(5, futureBox.getFutureMovieType());
-            pstmt.setInt(6, futureBox.getFutureGifticonType());
-            pstmt.setInt(7, futureBox.getFutureInventionType());
-            pstmt.setTimestamp(8, futureBox.getCreatedTime());
-            pstmt.setLong(9, futureBox.getId());
+            pstmt.setString(1, futureBox.getReceiver());
+            pstmt.setString(2, futureBox.getSender());
+            pstmt.setBoolean(3, futureBox.getOpen());
+            pstmt.setObject(4, futureBox.getFutureMovieType());
+            pstmt.setObject(5, futureBox.getFutureGifticonType());
+            pstmt.setObject(6, futureBox.getFutureInventionType());
+            pstmt.setTimestamp(7, futureBox.getCreatedTime());
+            pstmt.setLong(8, futureBox.getId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             log.error("db error", e);

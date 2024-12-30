@@ -8,7 +8,7 @@
         onclick="window.location.href='/future-boxes'"
         onmouseover="this.style.textDecoration='underline'" 
         onmouseout="this.style.textDecoration='none'">
-        퓨처박스 목록
+        FutureBox 목록
     </h2>
 
     <div th:if="${param.deleteStatus}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -63,8 +63,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="box : ${futureBoxes}">
-                    <td>
+                <tr th:each="box : ${futureBoxes}" th:onclick="handleRowClick(event, [[${box.id}]])" style="cursor: pointer;">
+                    <td onclick="event.stopPropagation()">
                         <input type="checkbox" name="selectedIds" th:value="${box.id}">
                     </td>
                     <td th:text="${box.id}"></td>
@@ -152,6 +152,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 });
+
+function handleRowClick(event, id) {
+    // 체크박스를 클릭한 경우 상세페이지로 이동하지 않음
+    if (event.target.type === 'checkbox') return;
+    
+    // 상세 페이지로 이동
+    window.location.href = `/future-boxes/${id}`;
+}
 </script>
 </body>
 </html>
