@@ -23,7 +23,9 @@
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">이미지</div>
                 <div class="col-md-9">
-                    <img th:src="${hologram.imageUrl}" alt="홀로그램 이미지" class="img-fluid">
+                    <a href="#" th:data-url="${hologram.imageUrl}" onclick="showImageWarning(this.getAttribute('data-url'))">
+                        <span th:text="${hologram.imageUrl}"></span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -47,6 +49,13 @@ function deleteHologram() {
         document.body.appendChild(form);
         form.submit();
     }
+}
+
+function showImageWarning(imageUrl) {
+    if (confirm('주의: 이 이미지는 개인정보가 포함되어 있을 수 있습니다. 계속하시겠습니까?')) {
+        window.open(imageUrl, '_blank');
+    }
+    return false;
 }
 </script>
 </body>
