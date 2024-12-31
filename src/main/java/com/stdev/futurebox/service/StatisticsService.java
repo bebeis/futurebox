@@ -2,6 +2,7 @@ package com.stdev.futurebox.service;
 
 import com.stdev.futurebox.dto.DailyStatistics;
 import com.stdev.futurebox.dto.TypeStatistics;
+import com.stdev.futurebox.dto.ItemStatistics;
 import com.stdev.futurebox.repository.StatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,16 @@ public class StatisticsService {
         } catch (SQLException e) {
             log.error("생성 수 통계 조회 실패", e);
             throw new IllegalStateException("생성 수 통계를 조회할 수 없습니다.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemStatistics> getItemStatistics() {
+        try {
+            return statisticsRepository.getItemStatistics();
+        } catch (SQLException e) {
+            log.error("아이템 통계 조회 실패", e);
+            throw new IllegalStateException("아이템 통계를 조회할 수 없습니다.");
         }
     }
 } 

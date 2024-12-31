@@ -88,6 +88,18 @@
         </div>
     </div>
 
+    <!-- 아이템 통계 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">아이템 생성 비율</h5>
+                    <canvas id="itemChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="text-center mt-4">
         <a href="/future-boxes" class="btn btn-secondary">FutureBox 목록으로</a>
     </div>
@@ -231,6 +243,55 @@
         '발명품 타입별 통계',
         'rgba(75, 192, 192, 0.8)'
     );
+
+    // 아이템 통계 차트
+    const itemCtx = document.getElementById('itemChart').getContext('2d');
+    const itemStats = /*[[${itemStats}]]*/ [];
+
+    new Chart(itemCtx, {
+        type: 'bar',
+        data: {
+            labels: itemStats.map(stat => stat.itemName),
+            datasets: [{
+                label: '생성된 아이템',
+                data: itemStats.map(stat => stat.count),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 159, 64, 0.8)',
+                    'rgba(199, 199, 199, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '아이템별 생성 비율'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const stat = itemStats[context.dataIndex];
+                            return `${stat.itemName}: ${stat.count}개 (${stat.percentage.toFixed(1)}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
     /*]]>*/
 </script>
 </body>

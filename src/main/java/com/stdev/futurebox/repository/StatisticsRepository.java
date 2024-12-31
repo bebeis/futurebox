@@ -3,6 +3,7 @@ package com.stdev.futurebox.repository;
 import com.stdev.futurebox.connection.DBConnectionUtil;
 import com.stdev.futurebox.dto.DailyStatistics;
 import com.stdev.futurebox.dto.TypeStatistics;
+import com.stdev.futurebox.dto.ItemStatistics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -152,6 +153,84 @@ public class StatisticsRepository {
             }
         }
         return 0L;
+    }
+
+    public List<ItemStatistics> getItemStatistics() throws SQLException {
+        String sql = """
+            WITH total_boxes AS (
+                SELECT COUNT(*) AS total
+                FROM future_box
+            )
+            SELECT\s
+                'FaceMirror' AS item_name,
+                COUNT(fm.id) AS count,
+                COUNT(fm.id)*100.0/(SELECT total FROM total_boxes) AS percentage
+            FROM future_box fb
+            LEFT JOIN future_face_mirror fm ON fb.id = fm.box_id
+            WHERE fm.id IS NOT NULL
+            UNION ALL
+            SELECT
+                'Gifticon',
+                COUNT(*) AS count,
+                COUNT(*)*100.0/(SELECT total FROM total_boxes) AS percentage
+            FROM future_box
+            WHERE future_gifticon_type IS NOT NULL
+            UNION ALL
+            SELECT
+                'Hologram',
+                COUNT(fh.id),
+                COUNT(fh.id)*100.0/(SELECT total FROM total_boxes)
+            FROM future_box fb
+            LEFT JOIN future_hologram fh ON fb.id = fh.box_id
+            WHERE fh.id IS NOT NULL
+            UNION ALL
+            SELECT
+                'Invention',
+                COUNT(*),
+                COUNT(*)*100.0/(SELECT total FROM total_boxes)
+            FROM future_box
+            WHERE future_invention_type IS NOT NULL
+            UNION ALL
+            SELECT
+                'Lotto',
+                COUNT(fl.id),
+                COUNT(fl.id)*100.0/(SELECT total FROM total_boxes)
+            FROM future_box fb
+            LEFT JOIN future_lotto fl ON fb.id = fl.box_id
+            WHERE fl.id IS NOT NULL
+            UNION ALL
+            SELECT
+                'Movie',
+                COUNT(*),
+                COUNT(*)*100.0/(SELECT total FROM total_boxes)
+            FROM future_box
+            WHERE future_movie_type IS NOT NULL
+            UNION ALL
+            SELECT
+                'Note',
+                COUNT(fn.id),
+                COUNT(fn.id)*100.0/(SELECT total FROM total_boxes)
+            FROM future_box fb
+            LEFT JOIN future_note fn ON fb.id = fn.box_id
+            WHERE fn.id IS NOT NULL
+            ORDER BY 2 DESC  -- count DESC
+        """;
+
+        List<ItemStatistics> statistics = new ArrayList<>();
+        
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+             
+            while (rs.next()) {
+                String itemName = rs.getString("item_name");
+                Long count = rs.getLong("count");
+                Double percentage = rs.getDouble("percentage");
+                statistics.add(new ItemStatistics(itemName, count, percentage));
+            }
+        }
+        
+        return statistics;
     }
 
 }

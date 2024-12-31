@@ -2,6 +2,7 @@ package com.stdev.futurebox.controller;
 
 import com.stdev.futurebox.dto.DailyStatistics;
 import com.stdev.futurebox.dto.TypeStatistics;
+import com.stdev.futurebox.dto.ItemStatistics;
 import com.stdev.futurebox.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +40,14 @@ public class StatisticsController {
         List<DailyStatistics> dailyStats = statisticsService.getDailyStatistics(startDate, endDate);
         List<TypeStatistics> typeStats = statisticsService.getTypeStatistics();
         Long createCount = statisticsService.getCreateCount(startDate, endDate);
+        List<ItemStatistics> itemStats = statisticsService.getItemStatistics();
 
         model.addAttribute("dailyStats", dailyStats);
         model.addAttribute("typeStats", typeStats);
         model.addAttribute("createCount", createCount);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+        model.addAttribute("itemStats", itemStats);
 
         return "statistics/dashboard";
     }
