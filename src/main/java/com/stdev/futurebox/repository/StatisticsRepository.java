@@ -17,9 +17,16 @@ public class StatisticsRepository {
 
     public List<DailyStatistics> getDailyStatistics(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
-            WITH daily_stats AS (
+            WITH RECURSIVE dates AS (
+                SELECT ?::date as date
+                UNION ALL
+                SELECT date + 1
+                FROM dates
+                WHERE date < ?::date
+            ),
+            daily_stats AS (
                 SELECT 
-                    DATE(created_at) as date,
+                    DATE(created_at) as stat_date,
                     COUNT(*) as total_count,
                     SUM(CASE WHEN is_opened THEN 1 ELSE 0 END) as opened_count,
                     SUM(CASE WHEN future_movie_type IS NOT NULL THEN 1 ELSE 0 END) as movie_count,
@@ -30,14 +37,15 @@ public class StatisticsRepository {
                 GROUP BY DATE(created_at)
             )
             SELECT 
-                date,
-                total_count,
-                opened_count,
-                movie_count,
-                gifticon_count,
-                invention_count
-            FROM daily_stats
-            ORDER BY date ASC
+                d.date,
+                COALESCE(s.total_count, 0) as total_count,
+                COALESCE(s.opened_count, 0) as opened_count,
+                COALESCE(s.movie_count, 0) as movie_count,
+                COALESCE(s.gifticon_count, 0) as gifticon_count,
+                COALESCE(s.invention_count, 0) as invention_count
+            FROM dates d
+            LEFT JOIN daily_stats s ON d.date = s.stat_date
+            ORDER BY d.date ASC
         """;
 
         List<DailyStatistics> statistics = new ArrayList<>();
@@ -47,6 +55,8 @@ public class StatisticsRepository {
             
             pstmt.setDate(1, Date.valueOf(startDate));
             pstmt.setDate(2, Date.valueOf(endDate));
+            pstmt.setDate(3, Date.valueOf(startDate));
+            pstmt.setDate(4, Date.valueOf(endDate));
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -67,29 +77,42 @@ public class StatisticsRepository {
 
     public List<TypeStatistics> getTypeStatistics() throws SQLException {
         String sql = """
-            SELECT 
-                '영화' AS type_category,
-                m.name AS type_name,
-                COUNT(*) AS count
-            FROM future_box fb
-            LEFT JOIN future_movie_types m ON fb.future_movie_type = m.id
-            GROUP BY m.name
+            WITH movie_stats AS (
+                SELECT 
+                    '영화' AS type_category,
+                    m.name AS type_name,
+                    COUNT(*) AS count,
+                    (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM future_box WHERE future_movie_type IS NOT NULL), 0)) AS percentage
+                FROM future_box fb
+                RIGHT JOIN future_movie_types m ON fb.future_movie_type = m.id
+                GROUP BY m.name
+            ),
+            gifticon_stats AS (
+                SELECT 
+                    '기프티콘' AS type_category,
+                    g.name AS type_name,
+                    COUNT(*) AS count,
+                    (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM future_box WHERE future_gifticon_type IS NOT NULL), 0)) AS percentage
+                FROM future_box fb
+                RIGHT JOIN future_gifticon_types g ON fb.future_gifticon_type = g.id
+                GROUP BY g.name
+            ),
+            invention_stats AS (
+                SELECT 
+                    '발명품' AS type_category,
+                    i.name AS type_name,
+                    COUNT(*) AS count,
+                    (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM future_box WHERE future_invention_type IS NOT NULL), 0)) AS percentage
+                FROM future_box fb
+                RIGHT JOIN future_invention_types i ON fb.future_invention_type = i.id
+                GROUP BY i.name
+            )
+            SELECT * FROM movie_stats
             UNION ALL
-            SELECT 
-                '기프티콘' AS type_category,
-                g.name AS type_name,
-                COUNT(*) AS count
-            FROM future_box fb
-            LEFT JOIN future_gifticon_types g ON fb.future_gifticon_type = g.id
-            GROUP BY g.name
+            SELECT * FROM gifticon_stats
             UNION ALL
-            SELECT 
-                '발명품' AS type_category,
-                i.name AS type_name,
-                COUNT(*) AS count
-            FROM future_box fb
-            LEFT JOIN future_invention_types i ON fb.future_invention_type = i.id
-            GROUP BY i.name
+            SELECT * FROM invention_stats
+            ORDER BY type_category, count DESC
         """;
 
         List<TypeStatistics> statistics = new ArrayList<>();
@@ -102,7 +125,8 @@ public class StatisticsRepository {
                 String category = rs.getString("type_category");
                 String typeName = rs.getString("type_name");
                 Long count = rs.getLong("count");
-                statistics.add(new TypeStatistics(category + " - " + typeName, count));
+                Double percentage = rs.getDouble("percentage");
+                statistics.add(new TypeStatistics(category, typeName, count, percentage));
             }
         }
         

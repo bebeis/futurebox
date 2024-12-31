@@ -5,7 +5,6 @@ import com.stdev.futurebox.dto.TypeStatistics;
 import com.stdev.futurebox.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.support.DaoSupport;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

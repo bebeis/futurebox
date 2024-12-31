@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: header}">
+<head>
+    <div th:replace="~{fragments/header :: header}"></div>
     <title>통계 대시보드</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -54,11 +55,34 @@
         </div>
 
         <!-- 타입별 통계 -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">타입별 통계</h5>
-                    <canvas id="typeChart"></canvas>
+        <div class="row">
+            <!-- 영화 통계 -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">영화 타입 통계</h5>
+                        <canvas id="movieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 기프티콘 통계 -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">기프티콘 타입 통계</h5>
+                        <canvas id="gifticonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 발명품 통계 -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">발명품 타입 통계</h5>
+                        <canvas id="inventionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,6 +96,7 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script th:inline="javascript">
+    /*<![CDATA[*/
     const dailyStats = /*[[${dailyStats}]]*/ [];
     const typeStats = /*[[${typeStats}]]*/ [];
 
@@ -85,52 +110,128 @@
                 label: '총 생성 수',
                 data: dailyStats.map(stat => stat.totalCount),
                 borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1,
+                fill: true
             }, {
                 label: '개봉 수',
                 data: dailyStats.map(stat => stat.openedCount),
                 borderColor: 'rgb(255, 99, 132)',
-                tension: 0.1
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1,
+                fill: true
             }]
         },
         options: {
             responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '일별 생성/개봉 현황'
+                }
+            },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
                 }
             }
         }
     });
 
-    // 타입별 통계 차트
-    const typeCtx = document.getElementById('typeChart').getContext('2d');
-    const typeCategories = [...new Set(typeStats.map(stat => stat.typeName.split(' - ')[0]))];
-    const typeData = typeCategories.map(category => {
-        const total = typeStats
-            .filter(stat => stat.typeName.startsWith(category))
-            .reduce((sum, stat) => sum + stat.count, 0);
-        return total;
-    });
+    // 카테고리별 데이터 분리
+    const movieStats = typeStats.filter(stat => stat.category === '영화');
+    const gifticonStats = typeStats.filter(stat => stat.category === '기프티콘');
+    const inventionStats = typeStats.filter(stat => stat.category === '발명품');
 
-    new Chart(typeCtx, {
-        type: 'pie',
-        data: {
-            labels: typeCategories,
-            datasets: [{
-                label: '타입별 개수',
-                data: typeData,
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(54, 162, 235)',
-                    'rgb(255, 206, 86)'
-                ]
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
+    // 차트 설정 함수
+    function createChart(ctx, data, title, baseColor) {
+        // 각 타입별 차트의 색상 팔레트 정의
+        const colorPalettes = {
+            '영화': [
+                'rgba(255, 99, 132, 0.8)',   // 빨강 계열
+                'rgba(255, 159, 64, 0.8)',   // 주황 계열
+                'rgba(255, 205, 86, 0.8)',   // 노랑 계열
+                'rgba(255, 99, 172, 0.8)',   // 분홍 계열
+                'rgba(255, 140, 120, 0.8)'   // 살구 계열
+            ],
+            '기프티콘': [
+                'rgba(54, 162, 235, 0.8)',   // 파랑 계열
+                'rgba(75, 192, 255, 0.8)',   // 하늘 계열
+                'rgba(0, 150, 255, 0.8)',    // 진한 파랑 계열
+                'rgba(116, 185, 255, 0.8)',  // 연한 파랑 계열
+                'rgba(30, 144, 255, 0.8)'    // 도지 블루 계열
+            ],
+            '발명품': [
+                'rgba(75, 192, 192, 0.8)',   // 청록 계열
+                'rgba(34, 139, 34, 0.8)',    // 초록 계열
+                'rgba(50, 205, 50, 0.8)',    // 라임 계열
+                'rgba(0, 128, 128, 0.8)',    // 틸 계열
+                'rgba(46, 139, 87, 0.8)'     // 시그린 계열
+            ]
+        };
+
+        const palette = colorPalettes[title.split(' ')[0]];
+
+        return new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data.map(stat => stat.typeName),
+                datasets: [{
+                    data: data.map(stat => stat.count),
+                    backgroundColor: data.map((_, index) => 
+                        palette[index % palette.length]
+                    )
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const stat = data[context.dataIndex];
+                                return `${stat.typeName}: ${stat.count}개 (${stat.percentage.toFixed(1)}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 각 차트 생성
+    createChart(
+        document.getElementById('movieChart').getContext('2d'),
+        movieStats,
+        '영화 타입별 통계',
+        'rgba(255, 99, 132, 0.8)'
+    );
+
+    createChart(
+        document.getElementById('gifticonChart').getContext('2d'),
+        gifticonStats,
+        '기프티콘 타입별 통계',
+        'rgba(54, 162, 235, 0.8)'
+    );
+
+    createChart(
+        document.getElementById('inventionChart').getContext('2d'),
+        inventionStats,
+        '발명품 타입별 통계',
+        'rgba(75, 192, 192, 0.8)'
+    );
+    /*]]>*/
 </script>
 </body>
 </html> 
