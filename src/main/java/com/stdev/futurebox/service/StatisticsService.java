@@ -31,9 +31,9 @@ public class StatisticsService {
     }
 
     @Transactional(readOnly = true)
-    public List<TypeStatistics> getTypeStatistics() {
+    public List<TypeStatistics> getTypeStatistics(LocalDate startDate, LocalDate endDate) {
         try {
-            return statisticsRepository.getTypeStatistics();
+            return statisticsRepository.getTypeStatistics(startDate, endDate);
         } catch (SQLException e) {
             log.error("타입별 통계 조회 실패", e);
             throw new IllegalStateException("타입별 통계를 조회할 수 없습니다.");
@@ -51,9 +51,9 @@ public class StatisticsService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemStatistics> getItemStatistics() {
+    public List<ItemStatistics> getItemStatistics(LocalDate startDate, LocalDate endDate) {
         try {
-            return statisticsRepository.getItemStatistics();
+            return statisticsRepository.getItemStatistics(startDate, endDate);
         } catch (SQLException e) {
             log.error("아이템 통계 조회 실패", e);
             throw new IllegalStateException("아이템 통계를 조회할 수 없습니다.");

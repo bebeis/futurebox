@@ -29,7 +29,7 @@ public class StatisticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Model model) {
-            
+
         if (startDate == null) {
             startDate = LocalDate.now().minusDays(30);
         }
@@ -38,9 +38,11 @@ public class StatisticsController {
         }
 
         List<DailyStatistics> dailyStats = statisticsService.getDailyStatistics(startDate, endDate);
-        List<TypeStatistics> typeStats = statisticsService.getTypeStatistics();
+        // 수정된 메서드 호출
+        List<TypeStatistics> typeStats = statisticsService.getTypeStatistics(startDate, endDate);
         Long createCount = statisticsService.getCreateCount(startDate, endDate);
-        List<ItemStatistics> itemStats = statisticsService.getItemStatistics();
+        // 수정된 메서드 호출
+        List<ItemStatistics> itemStats = statisticsService.getItemStatistics(startDate, endDate);
 
         model.addAttribute("dailyStats", dailyStats);
         model.addAttribute("typeStats", typeStats);

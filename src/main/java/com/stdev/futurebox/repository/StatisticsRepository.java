@@ -76,16 +76,28 @@ public class StatisticsRepository {
         return statistics;
     }
 
-    public List<TypeStatistics> getTypeStatistics() throws SQLException {
+    public List<TypeStatistics> getTypeStatistics(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
             WITH movie_stats AS (
                 SELECT 
                     '영화' AS type_category,
                     m.name AS type_name,
                     COUNT(*) AS count,
-                    (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM future_box WHERE future_movie_type IS NOT NULL), 0)) AS percentage
+                    (
+                        COUNT(*) * 100.0 
+                        / NULLIF( 
+                            (
+                                SELECT COUNT(*) 
+                                FROM future_box 
+                                WHERE future_movie_type IS NOT NULL
+                                AND DATE(created_at) BETWEEN ? AND ?
+                            ), 0
+                        )
+                    ) AS percentage
                 FROM future_box fb
-                RIGHT JOIN future_movie_types m ON fb.future_movie_type = m.id
+                RIGHT JOIN future_movie_types m 
+                       ON fb.future_movie_type = m.id
+                WHERE DATE(fb.created_at) BETWEEN ? AND ?
                 GROUP BY m.name
             ),
             gifticon_stats AS (
@@ -93,9 +105,21 @@ public class StatisticsRepository {
                     '기프티콘' AS type_category,
                     g.name AS type_name,
                     COUNT(*) AS count,
-                    (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM future_box WHERE future_gifticon_type IS NOT NULL), 0)) AS percentage
+                    (
+                        COUNT(*) * 100.0 
+                        / NULLIF( 
+                            (
+                                SELECT COUNT(*) 
+                                FROM future_box 
+                                WHERE future_gifticon_type IS NOT NULL
+                                AND DATE(created_at) BETWEEN ? AND ?
+                            ), 0
+                        )
+                    ) AS percentage
                 FROM future_box fb
-                RIGHT JOIN future_gifticon_types g ON fb.future_gifticon_type = g.id
+                RIGHT JOIN future_gifticon_types g 
+                       ON fb.future_gifticon_type = g.id
+                WHERE DATE(fb.created_at) BETWEEN ? AND ?
                 GROUP BY g.name
             ),
             invention_stats AS (
@@ -103,9 +127,21 @@ public class StatisticsRepository {
                     '발명품' AS type_category,
                     i.name AS type_name,
                     COUNT(*) AS count,
-                    (COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM future_box WHERE future_invention_type IS NOT NULL), 0)) AS percentage
+                    (
+                        COUNT(*) * 100.0 
+                        / NULLIF( 
+                            (
+                                SELECT COUNT(*) 
+                                FROM future_box 
+                                WHERE future_invention_type IS NOT NULL
+                                AND DATE(created_at) BETWEEN ? AND ?
+                            ), 0
+                        )
+                    ) AS percentage
                 FROM future_box fb
-                RIGHT JOIN future_invention_types i ON fb.future_invention_type = i.id
+                RIGHT JOIN future_invention_types i 
+                       ON fb.future_invention_type = i.id
+                WHERE DATE(fb.created_at) BETWEEN ? AND ?
                 GROUP BY i.name
             )
             SELECT * FROM movie_stats
@@ -117,20 +153,42 @@ public class StatisticsRepository {
         """;
 
         List<TypeStatistics> statistics = new ArrayList<>();
-        
+
         try (Connection con = DBConnectionUtil.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            
-            while (rs.next()) {
-                String category = rs.getString("type_category");
-                String typeName = rs.getString("type_name");
-                Long count = rs.getLong("count");
-                Double percentage = rs.getDouble("percentage");
-                statistics.add(new TypeStatistics(category, typeName, count, percentage));
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            // 파라미터 순서에 유의:
+            // 1) movie_stats의 subquery(분모)
+            pstmt.setDate(1, Date.valueOf(startDate));
+            pstmt.setDate(2, Date.valueOf(endDate));
+            // 2) movie_stats 메인 WHERE
+            pstmt.setDate(3, Date.valueOf(startDate));
+            pstmt.setDate(4, Date.valueOf(endDate));
+
+            // 3) gifticon_stats의 subquery(분모)
+            pstmt.setDate(5, Date.valueOf(startDate));
+            pstmt.setDate(6, Date.valueOf(endDate));
+            // 4) gifticon_stats 메인 WHERE
+            pstmt.setDate(7, Date.valueOf(startDate));
+            pstmt.setDate(8, Date.valueOf(endDate));
+
+            // 5) invention_stats의 subquery(분모)
+            pstmt.setDate(9, Date.valueOf(startDate));
+            pstmt.setDate(10, Date.valueOf(endDate));
+            // 6) invention_stats 메인 WHERE
+            pstmt.setDate(11, Date.valueOf(startDate));
+            pstmt.setDate(12, Date.valueOf(endDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String category = rs.getString("type_category");
+                    String typeName = rs.getString("type_name");
+                    Long count = rs.getLong("count");
+                    Double percentage = rs.getDouble("percentage");
+                    statistics.add(new TypeStatistics(category, typeName, count, percentage));
+                }
             }
         }
-        
         return statistics;
     }
 
@@ -155,27 +213,34 @@ public class StatisticsRepository {
         return 0L;
     }
 
-    public List<ItemStatistics> getItemStatistics() throws SQLException {
+    public List<ItemStatistics> getItemStatistics(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
             WITH total_boxes AS (
                 SELECT COUNT(*) AS total
                 FROM future_box
+                WHERE DATE(created_at) BETWEEN ? AND ?
             )
-            SELECT\s
+            SELECT
                 'FaceMirror' AS item_name,
                 COUNT(fm.id) AS count,
                 COUNT(fm.id)*100.0/(SELECT total FROM total_boxes) AS percentage
             FROM future_box fb
             LEFT JOIN future_face_mirror fm ON fb.id = fm.box_id
             WHERE fm.id IS NOT NULL
+              AND DATE(fb.created_at) BETWEEN ? AND ?
+            
             UNION ALL
+            
             SELECT
                 'Gifticon',
                 COUNT(*) AS count,
                 COUNT(*)*100.0/(SELECT total FROM total_boxes) AS percentage
             FROM future_box
             WHERE future_gifticon_type IS NOT NULL
+              AND DATE(created_at) BETWEEN ? AND ?
+              
             UNION ALL
+            
             SELECT
                 'Hologram',
                 COUNT(fh.id),
@@ -183,14 +248,20 @@ public class StatisticsRepository {
             FROM future_box fb
             LEFT JOIN future_hologram fh ON fb.id = fh.box_id
             WHERE fh.id IS NOT NULL
+              AND DATE(fb.created_at) BETWEEN ? AND ?
+              
             UNION ALL
+            
             SELECT
                 'Invention',
                 COUNT(*),
                 COUNT(*)*100.0/(SELECT total FROM total_boxes)
             FROM future_box
             WHERE future_invention_type IS NOT NULL
+              AND DATE(created_at) BETWEEN ? AND ?
+              
             UNION ALL
+            
             SELECT
                 'Lotto',
                 COUNT(fl.id),
@@ -198,14 +269,20 @@ public class StatisticsRepository {
             FROM future_box fb
             LEFT JOIN future_lotto fl ON fb.id = fl.box_id
             WHERE fl.id IS NOT NULL
+              AND DATE(fb.created_at) BETWEEN ? AND ?
+              
             UNION ALL
+            
             SELECT
                 'Movie',
                 COUNT(*),
                 COUNT(*)*100.0/(SELECT total FROM total_boxes)
             FROM future_box
             WHERE future_movie_type IS NOT NULL
+              AND DATE(created_at) BETWEEN ? AND ?
+              
             UNION ALL
+            
             SELECT
                 'Note',
                 COUNT(fn.id),
@@ -213,23 +290,57 @@ public class StatisticsRepository {
             FROM future_box fb
             LEFT JOIN future_note fn ON fb.id = fn.box_id
             WHERE fn.id IS NOT NULL
+              AND DATE(fb.created_at) BETWEEN ? AND ?
+            
             ORDER BY 2 DESC  -- count DESC
         """;
 
         List<ItemStatistics> statistics = new ArrayList<>();
-        
+
         try (Connection con = DBConnectionUtil.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-             
-            while (rs.next()) {
-                String itemName = rs.getString("item_name");
-                Long count = rs.getLong("count");
-                Double percentage = rs.getDouble("percentage");
-                statistics.add(new ItemStatistics(itemName, count, percentage));
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            // total_boxes (1~2)
+            pstmt.setDate(1, Date.valueOf(startDate));
+            pstmt.setDate(2, Date.valueOf(endDate));
+
+            // FaceMirror (3~4)
+            pstmt.setDate(3, Date.valueOf(startDate));
+            pstmt.setDate(4, Date.valueOf(endDate));
+
+            // Gifticon (5~6)
+            pstmt.setDate(5, Date.valueOf(startDate));
+            pstmt.setDate(6, Date.valueOf(endDate));
+
+            // Hologram (7~8)
+            pstmt.setDate(7, Date.valueOf(startDate));
+            pstmt.setDate(8, Date.valueOf(endDate));
+
+            // Invention (9~10)
+            pstmt.setDate(9, Date.valueOf(startDate));
+            pstmt.setDate(10, Date.valueOf(endDate));
+
+            // Lotto (11~12)
+            pstmt.setDate(11, Date.valueOf(startDate));
+            pstmt.setDate(12, Date.valueOf(endDate));
+
+            // Movie (13~14)
+            pstmt.setDate(13, Date.valueOf(startDate));
+            pstmt.setDate(14, Date.valueOf(endDate));
+
+            // Note (15~16)
+            pstmt.setDate(15, Date.valueOf(startDate));
+            pstmt.setDate(16, Date.valueOf(endDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String itemName = rs.getString("item_name");
+                    Long count = rs.getLong("count");
+                    Double percentage = rs.getDouble("percentage");
+                    statistics.add(new ItemStatistics(itemName, count, percentage));
+                }
             }
         }
-        
         return statistics;
     }
 
