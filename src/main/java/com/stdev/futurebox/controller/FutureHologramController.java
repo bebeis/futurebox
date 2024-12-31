@@ -2,7 +2,9 @@ package com.stdev.futurebox.controller;
 
 import com.stdev.futurebox.domain.FutureHologram;
 import com.stdev.futurebox.dto.FutureHologramCreateForm;
+import com.stdev.futurebox.repository.AccessLogRepository;
 import com.stdev.futurebox.service.FutureHologramService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -19,11 +21,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class FutureHologramController {
     private final FutureHologramService futureHologramService;
+    private final AccessLogRepository accessLogRepository;
 
     @GetMapping("/{futureHologramId}")
-    public String futureHologram(@PathVariable Long futureHologramId, Model model) {
+    public String futureHologram(@PathVariable Long futureHologramId, Model model, HttpServletRequest request) {
         FutureHologram futureHologram = futureHologramService.findById(futureHologramId);
         model.addAttribute("hologram", futureHologram);
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        accessLogRepository.saveLog("HOLOGRAM", futureHologramId, ipAddress, userAgent);
+        log.info("Admin viewed future hologram id: {} from ip: {}, userAgent: {}", futureHologramId, ipAddress, userAgent);
         return "future-hologram/futureHologram";
     }
 

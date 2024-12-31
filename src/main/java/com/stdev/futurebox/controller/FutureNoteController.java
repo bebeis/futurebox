@@ -2,7 +2,9 @@ package com.stdev.futurebox.controller;
 
 import com.stdev.futurebox.domain.FutureNote;
 import com.stdev.futurebox.dto.FutureNoteCreateForm;
+import com.stdev.futurebox.repository.AccessLogRepository;
 import com.stdev.futurebox.service.FutureNoteService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -21,11 +23,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class FutureNoteController {
 
     private final FutureNoteService futureNoteService;
+    private final AccessLogRepository accessLogRepository;
 
     @GetMapping("/{futureNoteId}")
-    public String futureNote(@PathVariable Long futureNoteId, Model model) {
+    public String futureNote(@PathVariable Long futureNoteId, Model model, HttpServletRequest request) {
         FutureNote futureNote = futureNoteService.findById(futureNoteId);
         model.addAttribute("note", futureNote);
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        accessLogRepository.saveLog("NOTE", futureNoteId, ipAddress, userAgent);
+        log.info("Admin viewed future note id: {} from ip: {}, userAgent: {}", futureNoteId, ipAddress, userAgent);
         return "future-note/futureNote";
     }
 

@@ -2,7 +2,9 @@ package com.stdev.futurebox.controller;
 
 import com.stdev.futurebox.domain.FutureFaceMirror;
 import com.stdev.futurebox.dto.FutureFaceMirrorCreateForm;
+import com.stdev.futurebox.repository.AccessLogRepository;
 import com.stdev.futurebox.service.FutureFaceMirrorService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -20,11 +22,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class FutureFaceMirrorController {
 
     private final FutureFaceMirrorService futureFaceMirrorService;
+    private final AccessLogRepository accessLogRepository;
 
     @GetMapping("/{futureFaceMirrorId}")
-    public String futureFaceMirror(@PathVariable Long futureFaceMirrorId, Model model) {
+    public String futureFaceMirror(@PathVariable Long futureFaceMirrorId, Model model, HttpServletRequest request) {
         FutureFaceMirror futureFaceMirror = futureFaceMirrorService.findById(futureFaceMirrorId);
         model.addAttribute("faceMirror", futureFaceMirror);
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        accessLogRepository.saveLog("FACE_MIRROR", futureFaceMirrorId, ipAddress, userAgent);
+        log.info("관리자가 미래의 얼굴 거울 id: {}를 조회하였습니다. ip: {}, userAgent: {}", futureFaceMirrorId, ipAddress, userAgent);
         return "future-face-mirror/futureFaceMirror";
     }
 
