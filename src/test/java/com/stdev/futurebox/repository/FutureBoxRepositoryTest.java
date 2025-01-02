@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Random;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @Slf4j
