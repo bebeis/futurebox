@@ -11,12 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class FutureBoxRepository {
+
+    private final DataSource dataSource;
 
     public FutureBox save(FutureBox futureBox) throws SQLException {
         String sql =
@@ -81,8 +86,10 @@ public class FutureBoxRepository {
         }
     }
 
-    private Connection getConnection() {
-        return DBConnectionUtil.getConnection();
+    private Connection getConnection() throws SQLException {
+        Connection con = dataSource.getConnection();
+        log.info("get connection={}, class={}", con, con.getClass());
+        return con;
     }
 
     public FutureBox findById(Long id) throws SQLException {
@@ -262,6 +269,8 @@ public class FutureBoxRepository {
     }
 
     public void deleteById(Long id) throws SQLException {
+        deleteLogsByBoxId(id);
+        
         String sql = "DELETE FROM future_box WHERE id = ?";
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -298,6 +307,24 @@ public class FutureBoxRepository {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
+    public void deleteLogsByBoxId(Long boxId) throws SQLException {
+        String sql = "DELETE FROM future_box_logs WHERE box_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, boxId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("로그 삭제 실패", e);
             throw e;
         } finally {
             close(con, pstmt, null);
