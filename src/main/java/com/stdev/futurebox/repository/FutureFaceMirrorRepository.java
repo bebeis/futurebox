@@ -8,13 +8,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
+import javax.sql.DataSource;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class FutureFaceMirrorRepository {
+
+    private final DataSource dataSource;
 
     public void save(FutureFaceMirror futureFaceMirror) throws SQLException {
         String sql = "INSERT INTO future_face_mirror (box_id, year, image_url) values (?, ?, ?) Returning id";
@@ -23,7 +28,7 @@ public class FutureFaceMirrorRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, futureFaceMirror.getBoxId());
             pstmt.setInt(2, futureFaceMirror.getYear());
@@ -50,7 +55,7 @@ public class FutureFaceMirrorRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             rs = pstmt.executeQuery();
@@ -80,7 +85,7 @@ public class FutureFaceMirrorRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             rs = pstmt.executeQuery();
@@ -108,7 +113,7 @@ public class FutureFaceMirrorRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             pstmt.executeUpdate();
@@ -126,7 +131,7 @@ public class FutureFaceMirrorRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             pstmt.executeUpdate();
@@ -144,7 +149,7 @@ public class FutureFaceMirrorRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, futureFaceMirror.getBoxId());
             pstmt.setInt(2, futureFaceMirror.getYear());
@@ -157,10 +162,6 @@ public class FutureFaceMirrorRepository {
         } finally {
             close(con, pstmt, null);
         }
-    }
-
-    private Connection getConnection() {
-        return DBConnectionUtil.getConnection();
     }
 
     private void close(Connection con, Statement stmt, ResultSet rs) {

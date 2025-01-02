@@ -1,6 +1,5 @@
 package com.stdev.futurebox.repository;
 
-import com.stdev.futurebox.connection.DBConnectionUtil;
 import com.stdev.futurebox.domain.FutureGifticon;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,12 +9,18 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Slf4j
+@RequiredArgsConstructor
 public class FutureGifticonRepository {
+
+    private final DataSource dataSource;
+
     public void save(FutureGifticon futureGifticon) throws SQLException {
         String sql = "INSERT INTO future_gifticon_types (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?) RETURNING id";
         Connection con = null;
@@ -23,7 +28,7 @@ public class FutureGifticonRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, futureGifticon.getName());
             pstmt.setString(2, futureGifticon.getDescription());
@@ -51,7 +56,7 @@ public class FutureGifticonRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             rs = pstmt.executeQuery();
@@ -82,7 +87,7 @@ public class FutureGifticonRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             stmt = con.createStatement();
             rs = stmt.executeQuery(sql);
 
@@ -112,7 +117,7 @@ public class FutureGifticonRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             pstmt.executeUpdate();
@@ -130,7 +135,7 @@ public class FutureGifticonRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, futureGifticon.getName());
             pstmt.setString(2, futureGifticon.getDescription());
@@ -144,10 +149,6 @@ public class FutureGifticonRepository {
         } finally {
             close(con, pstmt, null);
         }
-    }
-
-    private Connection getConnection() {
-        return DBConnectionUtil.getConnection();
     }
 
     private void close(Connection con, Statement stmt, ResultSet rs) {

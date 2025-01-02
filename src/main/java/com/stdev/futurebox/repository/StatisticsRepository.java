@@ -1,9 +1,10 @@
 package com.stdev.futurebox.repository;
 
-import com.stdev.futurebox.connection.DBConnectionUtil;
 import com.stdev.futurebox.dto.DailyStatistics;
 import com.stdev.futurebox.dto.TypeStatistics;
 import com.stdev.futurebox.dto.ItemStatistics;
+import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,10 @@ import java.util.List;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class StatisticsRepository {
+
+    private final DataSource dataSource;
 
     public List<DailyStatistics> getDailyStatistics(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
@@ -51,7 +55,7 @@ public class StatisticsRepository {
 
         List<DailyStatistics> statistics = new ArrayList<>();
         
-        try (Connection con = DBConnectionUtil.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             
             pstmt.setDate(1, Date.valueOf(startDate));
@@ -154,7 +158,7 @@ public class StatisticsRepository {
 
         List<TypeStatistics> statistics = new ArrayList<>();
 
-        try (Connection con = DBConnectionUtil.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             // 파라미터 순서에 유의:
@@ -198,7 +202,7 @@ public class StatisticsRepository {
             FROM future_box
             WHERE DATE(created_at) BETWEEN ? AND ?
         """;
-        try (Connection con = DBConnectionUtil.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             
             pstmt.setDate(1, Date.valueOf(startDate));
@@ -297,7 +301,7 @@ public class StatisticsRepository {
 
         List<ItemStatistics> statistics = new ArrayList<>();
 
-        try (Connection con = DBConnectionUtil.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             // total_boxes (1~2)

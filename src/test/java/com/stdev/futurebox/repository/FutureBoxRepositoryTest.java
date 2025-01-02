@@ -3,6 +3,7 @@ package com.stdev.futurebox.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.stdev.futurebox.domain.FutureBox;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -18,7 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class FutureBoxRepositoryTest {
 
-    FutureBoxRepository repository = new FutureBoxRepository();
+    HikariDataSource dataSource = new HikariDataSource();
+    FutureBoxRepository repository = new FutureBoxRepository(dataSource);
 
     @Test
     void save() throws SQLException {

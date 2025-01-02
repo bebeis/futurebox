@@ -1,6 +1,5 @@
 package com.stdev.futurebox.repository;
 
-import com.stdev.futurebox.connection.DBConnectionUtil;
 import com.stdev.futurebox.domain.FutureLotto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,12 +7,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
+import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class FutureLottoRepository {
+
+    private final DataSource dataSource;
+
     public void save(FutureLotto futureLotto) throws SQLException {
         String sql = "INSERT INTO future_lotto (box_id, numbers) VALUES (?, ?) RETURNING id";
         Connection con = null;
@@ -21,7 +26,7 @@ public class FutureLottoRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, futureLotto.getBoxId());
             pstmt.setObject(2, futureLotto.getNumbers());
@@ -47,7 +52,7 @@ public class FutureLottoRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             rs = pstmt.executeQuery();
@@ -83,7 +88,7 @@ public class FutureLottoRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             rs = pstmt.executeQuery();
@@ -117,7 +122,7 @@ public class FutureLottoRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             pstmt.executeUpdate();
@@ -135,7 +140,7 @@ public class FutureLottoRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, futureLotto.getBoxId());
             pstmt.setObject(2, futureLotto.getNumbers());
@@ -155,7 +160,7 @@ public class FutureLottoRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             pstmt.executeUpdate();
@@ -192,9 +197,5 @@ public class FutureLottoRepository {
                 log.info("error", e);
             }
         }
-    }
-
-    private Connection getConnection() {
-        return DBConnectionUtil.getConnection();
     }
 }

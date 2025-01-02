@@ -1,6 +1,5 @@
 package com.stdev.futurebox.repository;
 
-import com.stdev.futurebox.connection.DBConnectionUtil;
 import com.stdev.futurebox.domain.FutureHologram;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,12 +7,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
+import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class FutureHologramRepository {
+
+    private final DataSource dataSource;
+
     public void save(FutureHologram futureHologram) throws SQLException {
         String sql = "INSERT INTO future_hologram (box_id, message, image_url) VALUES (?, ?, ?) Returning id";
         Connection con = null;
@@ -21,7 +26,7 @@ public class FutureHologramRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, futureHologram.getBoxId());
             pstmt.setString(2, futureHologram.getMessage());
@@ -48,7 +53,7 @@ public class FutureHologramRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             rs = pstmt.executeQuery();
@@ -78,7 +83,7 @@ public class FutureHologramRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             rs = pstmt.executeQuery();
@@ -106,7 +111,7 @@ public class FutureHologramRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             pstmt.executeUpdate();
@@ -124,7 +129,7 @@ public class FutureHologramRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             pstmt.executeUpdate();
@@ -142,7 +147,7 @@ public class FutureHologramRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, futureHologram.getBoxId());
             pstmt.setString(2, futureHologram.getMessage());
@@ -155,10 +160,6 @@ public class FutureHologramRepository {
         } finally {
             close(con, pstmt, null);
         }
-    }
-
-    private Connection getConnection() {
-        return DBConnectionUtil.getConnection();
     }
 
     private void close(Connection con, Statement stmt, ResultSet rs) {

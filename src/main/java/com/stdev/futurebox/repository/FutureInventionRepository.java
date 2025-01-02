@@ -10,13 +10,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class FutureInventionRepository {
+
+    private final DataSource dataSource;
 
     public void save(FutureInvention futureInvention) throws SQLException {
         String sql = "INSERT INTO future_invention_types (name, description, image_url, detail_image_url) VALUES (?, ?, ?, ?) RETURNING id";
@@ -25,7 +29,7 @@ public class FutureInventionRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, futureInvention.getName());
             pstmt.setString(2, futureInvention.getDescription());
@@ -53,7 +57,7 @@ public class FutureInventionRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             rs = pstmt.executeQuery();
@@ -84,7 +88,7 @@ public class FutureInventionRepository {
         ResultSet rs = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             stmt = con.createStatement();
             rs = stmt.executeQuery(sql);
 
@@ -114,7 +118,7 @@ public class FutureInventionRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             pstmt.executeUpdate();
@@ -132,7 +136,7 @@ public class FutureInventionRepository {
         PreparedStatement pstmt = null;
 
         try {
-            con = getConnection();
+            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, futureInvention.getName());
             pstmt.setString(2, futureInvention.getDescription());
@@ -146,10 +150,6 @@ public class FutureInventionRepository {
         } finally {
             close(con, pstmt, null);
         }
-    }
-
-    private Connection getConnection() {
-        return DBConnectionUtil.getConnection();
     }
 
     private void close(Connection con, Statement stmt, ResultSet rs) {
