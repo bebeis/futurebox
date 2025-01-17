@@ -2,8 +2,12 @@ package com.stdev.futurebox.controller;
 
 import com.stdev.futurebox.service.GcpStorageService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -62,15 +66,19 @@ public class StorageController {
     }
 
     @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file, 
+    public String uploadFile(@RequestParam("files") List<MultipartFile> files,
                             @RequestParam(required = false) String currentPath,
                             RedirectAttributes redirectAttributes) {
         try {
-            String fullPath = currentPath != null ? currentPath + "/" + file.getOriginalFilename() 
-                                                : file.getOriginalFilename();
-            String fileUrl = storageService.uploadFile(file, fullPath);
-            redirectAttributes.addFlashAttribute("message", "파일이 성공적으로 업로드되었습니다.");
-            redirectAttributes.addFlashAttribute("fileUrl", fileUrl);
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String fullPath = currentPath != null ? 
+                        currentPath + "/" + file.getOriginalFilename() : 
+                        file.getOriginalFilename();
+                    String fileUrl = storageService.uploadFile(file, fullPath);
+                }
+            }
+            redirectAttributes.addFlashAttribute("message", "파일들이 성공적으로 업로드되었습니다.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "파일 업로드에 실패했습니다: " + e.getMessage());
         }
@@ -94,5 +102,30 @@ public class StorageController {
         }
         
         return "redirect:/storage" + (currentPath != null ? "?path=" + currentPath : "");
+    }
+
+    @PostMapping("/delete-multiple")
+    public ResponseEntity<String> deleteMultiple(@RequestBody List<DeleteRequest> items) {
+        try {
+            for (DeleteRequest item : items) {
+                if (item.getType().equals("directory")) {
+                    storageService.deleteDirectory(item.getPath());
+                } else {
+                    storageService.deleteFile(item.getPath());
+                }
+            }
+            return ResponseEntity.ok("성공적으로 삭제되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DeleteRequest {
+        private String path;
+        private String type;
     }
 } 
