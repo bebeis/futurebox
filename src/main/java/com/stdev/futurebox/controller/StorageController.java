@@ -87,21 +87,27 @@ public class StorageController {
 
     @PostMapping("/delete/{fileName}/**")
     public String deleteFile(@PathVariable String fileName, 
-                            @RequestParam(required = false) String currentPath,
                             HttpServletRequest request,
                             RedirectAttributes redirectAttributes) {
         try {
-            // URL에서 전체 파일 경로 추출
             String uri = request.getRequestURI();
             String fullPath = uri.substring(uri.indexOf(fileName));
             
+            // 현재 디렉토리 경로 추출
+            String currentPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
+            if (currentPath.isEmpty()) {
+                currentPath = null;
+            }
+            
             storageService.deleteFile(fullPath);
             redirectAttributes.addFlashAttribute("message", "파일이 성공적으로 삭제되었습니다.");
+            
+            // 현재 경로로 리다이렉트
+            return "redirect:/storage" + (currentPath != null ? "?path=" + currentPath : "");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "파일 삭제에 실패했습니다: " + e.getMessage());
+            return "redirect:/storage";
         }
-        
-        return "redirect:/storage" + (currentPath != null ? "?path=" + currentPath : "");
     }
 
     @PostMapping("/delete-multiple")

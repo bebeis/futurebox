@@ -172,6 +172,50 @@ function createDirectory() {
     });
 }
 
+function toggleAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.getElementsByName('selectedItems');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+}
+
+function deleteSelected() {
+    const checkboxes = document.getElementsByName('selectedItems');
+    const selectedItems = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => ({
+            path: cb.getAttribute('data-path'),
+            type: cb.getAttribute('data-type')
+        }));
+
+    if (selectedItems.length === 0) {
+        alert('삭제할 항목을 선택해주세요.');
+        return;
+    }
+
+    if (confirm(`선택한 ${selectedItems.length}개의 항목을 삭제하시겠습니까?`)) {
+        fetch('/storage/delete-multiple', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(selectedItems)
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('일부 항목 삭제에 실패했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('삭제 중 오류가 발생했습니다.');
+        });
+    }
+}
+
 function deleteDirectory(path) {
     if (confirm(`'${path}' 디렉토리를 삭제하시겠습니까?`)) {
         fetch(`/storage/directory/${encodeURIComponent(path)}`, {
