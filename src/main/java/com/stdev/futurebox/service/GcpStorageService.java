@@ -38,11 +38,23 @@ public class GcpStorageService {
     public String uploadFile(MultipartFile file, String fileName) {
         try {
             BlobId blobId = BlobId.of(bucketName, assetPrefixPath + fileName);
+            
+            // 기존 파일이 있는지 확인
+            Blob existingBlob = storage.get(blobId);
+            if (existingBlob != null && existingBlob.exists()) {
+                // 기존 파일 삭제
+                existingBlob.delete();
+                log.info("기존 파일 삭제: {}", fileName);
+            }
+
+            // 새 파일 업로드
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
                 .setContentType(file.getContentType())
                 .build();
 
             Blob blob = storage.create(blobInfo, file.getBytes());
+            log.info("새 파일 업로드 완료: {}", fileName);
+            
             return blob.getMediaLink();
             
         } catch (IOException e) {
