@@ -24,6 +24,30 @@ public class StatisticsController {
 
     private final StatisticsService statisticsService;
 
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        // 전체 통계
+        long totalBoxCount = statisticsService.getTotalBoxCount();
+        long openedBoxCount = statisticsService.getOpenedBoxCount();
+        long unopenedBoxCount = totalBoxCount - openedBoxCount;
+
+        model.addAttribute("totalBoxCount", totalBoxCount);
+        model.addAttribute("openedBoxCount", openedBoxCount);
+        model.addAttribute("unopenedBoxCount", unopenedBoxCount);
+
+        // 기프티콘 타입 통계
+        List<TypeStatistics> gifticonStats = statisticsService.getGifticonTypeStatistics();
+        model.addAttribute("gifticonStats", gifticonStats);
+
+        // 추가 기능 통계
+        model.addAttribute("noteCount", statisticsService.getNoteCount());
+        model.addAttribute("tarotCount", statisticsService.getTarotCount());
+        model.addAttribute("perfumeCount", statisticsService.getPerfumeCount());
+        model.addAttribute("hologramCount", statisticsService.getHologramCount());
+
+        return "statistics/dashboard";
+    }
+
     @GetMapping
     public String statistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 @Slf4j
 @Repository
@@ -19,172 +20,147 @@ public class FutureHologramRepository {
 
     private final DataSource dataSource;
 
-    public void save(FutureHologram futureHologram) throws SQLException {
-        String sql = "INSERT INTO future_hologram (box_id, message, image_url) VALUES (?, ?, ?) Returning id";
-        Connection con = null;
+    public FutureHologram save(FutureHologram hologram) throws SQLException {
+        String sql = "INSERT INTO future_hologram (box_id, image_url) VALUES (?, ?) RETURNING id";
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
+        
         try {
-            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
-            pstmt.setLong(1, futureHologram.getBoxId());
-            pstmt.setString(2, futureHologram.getMessage());
-            pstmt.setString(3, futureHologram.getImageUrl());
+            pstmt.setLong(1, hologram.getBoxId());
+            pstmt.setString(2, hologram.getImageUrl());
+            
             rs = pstmt.executeQuery();
-
             if (rs.next()) {
-                futureHologram.setId(rs.getLong("id"));
+                hologram.setId(rs.getLong("id"));
+                return hologram;
             } else {
-                throw new SQLException("Creating FutureHologram failed, no ID obtained.");
+                throw new SQLException("FutureHologram 생성 실패");
             }
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
         } finally {
-            close(con, pstmt, null);
+            close(null, pstmt, rs);
         }
     }
 
     public FutureHologram findById(Long id) throws SQLException {
         String sql = "SELECT * FROM future_hologram WHERE id = ?";
-        Connection con = null;
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
+        
         try {
-            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             rs = pstmt.executeQuery();
-
+            
             if (rs.next()) {
-                FutureHologram futureHologram = new FutureHologram();
-                futureHologram.setId(rs.getLong("id"));
-                futureHologram.setBoxId(rs.getLong("box_id"));
-                futureHologram.setMessage(rs.getString("message"));
-                futureHologram.setImageUrl(rs.getString("image_url"));
-                return futureHologram;
-            } else {
-                throw new NoSuchElementException("FutureHologram not found id=" + id);
+                return mapToHologram(rs);
             }
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
+            throw new NoSuchElementException("해당 ID의 FutureHologram이 없습니다: " + id);
         } finally {
-            close(con, pstmt, null);
+            close(null, pstmt, rs);
         }
     }
 
     public FutureHologram findByBoxId(Long boxId) throws SQLException {
         String sql = "SELECT * FROM future_hologram WHERE box_id = ?";
-        Connection con = null;
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
+        
         try {
-            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             rs = pstmt.executeQuery();
-
+            
             if (rs.next()) {
-                FutureHologram futureHologram = new FutureHologram();
-                futureHologram.setId(rs.getLong("id"));
-                futureHologram.setBoxId(rs.getLong("box_id"));
-                futureHologram.setMessage(rs.getString("message"));
-                futureHologram.setImageUrl(rs.getString("image_url"));
-                return futureHologram;
+                return mapToHologram(rs);
             }
             return null;
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
         } finally {
-            close(con, pstmt, rs);
+            close(null, pstmt, rs);
+        }
+    }
+
+    public void update(FutureHologram hologram) throws SQLException {
+        String sql = "UPDATE future_hologram SET image_url = ? WHERE id = ?";
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
+        PreparedStatement pstmt = null;
+        
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, hologram.getImageUrl());
+            pstmt.setLong(2, hologram.getId());
+            pstmt.executeUpdate();
+        } finally {
+            close(null, pstmt, null);
         }
     }
 
     public void deleteById(Long id) throws SQLException {
         String sql = "DELETE FROM future_hologram WHERE id = ?";
-        Connection con = null;
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
-
+        
         try {
-            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
         } finally {
-            close(con, pstmt, null);
+            close(null, pstmt, null);
         }
     }
 
     public void deleteByBoxId(Long boxId) throws SQLException {
         String sql = "DELETE FROM future_hologram WHERE box_id = ?";
-        Connection con = null;
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
-
+        
         try {
-            con = dataSource.getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
         } finally {
-            close(con, pstmt, null);
+            close(null, pstmt, null);
         }
     }
 
-    public void update(FutureHologram futureHologram) throws SQLException {
-        String sql = "UPDATE future_hologram SET box_id = ?, message = ?, image_url = ? WHERE id = ?";
-        Connection con = null;
-        PreparedStatement pstmt = null;
-
-        try {
-            con = dataSource.getConnection();
-            pstmt = con.prepareStatement(sql);
-            pstmt.setLong(1, futureHologram.getBoxId());
-            pstmt.setString(2, futureHologram.getMessage());
-            pstmt.setString(3, futureHologram.getImageUrl());
-            pstmt.setLong(4, futureHologram.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
-        } finally {
-            close(con, pstmt, null);
-        }
+    private FutureHologram mapToHologram(ResultSet rs) throws SQLException {
+        FutureHologram hologram = new FutureHologram();
+        hologram.setId(rs.getLong("id"));
+        hologram.setBoxId(rs.getLong("box_id"));
+        hologram.setImageUrl(rs.getString("image_url"));
+        return hologram;
     }
 
-    private void close(Connection con, Statement stmt, ResultSet rs) {
-
+    private void close(Connection con, PreparedStatement pstmt, ResultSet rs) {
         if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
+            try { rs.close(); } catch (SQLException e) { log.error("ResultSet 닫기 실패", e); }
         }
-
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
+        if (pstmt != null) {
+            try { pstmt.close(); } catch (SQLException e) { log.error("Statement 닫기 실패", e); }
         }
+        // Connection은 닫지 않음 - 스프링이 관리하도록 함
+    }
 
-        if (con != null) {
-            try {
-                con.close();
-            } catch (SQLException e) {
-                log.info("error", e);
+    public long count() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM future_hologram";
+        
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+                return 0L;
             }
         }
     }

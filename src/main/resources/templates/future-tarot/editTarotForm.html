@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">Tarot 수정</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form th:action="@{/future-tarot/edit/{id}(id=${tarot.id})}" method="post" class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="cardName" class="form-label">카드 이름</label>
+                        <input type="text" class="form-control" id="cardName" name="cardName" 
+                               th:value="${tarot.cardName}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="interpretation" class="form-label">해석</label>
+                        <textarea class="form-control" id="interpretation" name="interpretation" 
+                                rows="5" th:text="${tarot.interpretation}" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">카드 이미지 URL</label>
+                        <input type="url" class="form-control" id="imageUrl" name="imageUrl" 
+                               th:value="${tarot.imageUrl}" required>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary me-2">수정</button>
+                        <a th:href="@{/future-boxes/{id}(id=${tarot.boxId})}" class="btn btn-secondary">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html> 

@@ -6,8 +6,9 @@ import com.stdev.futurebox.service.FutureBoxService;
 import com.stdev.futurebox.service.FutureTypeService;
 import com.stdev.futurebox.service.FutureFaceMirrorService;
 import com.stdev.futurebox.service.FutureHologramService;
-import com.stdev.futurebox.service.FutureLottoService;
 import com.stdev.futurebox.service.FutureNoteService;
+import com.stdev.futurebox.service.FutureTarotService;
+import com.stdev.futurebox.service.FuturePerfumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -35,8 +36,9 @@ public class FutureBoxController {
     private final FutureTypeService futureTypeService;
     private final FutureFaceMirrorService futureFaceMirrorService;
     private final FutureHologramService futureHologramService;
-    private final FutureLottoService futureLottoService;
     private final FutureNoteService futureNoteService;
+    private final FutureTarotService futureTarotService;
+    private final FuturePerfumeService futurePerfumeService;
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "1") int page,
@@ -67,25 +69,18 @@ public class FutureBoxController {
     public String futureBox(@PathVariable Long futureBoxId, Model model) {
         FutureBox futureBox = futureBoxService.findById(futureBoxId);
         
-        // 각 타입 정보 조회 - null 체크 추가
-        if (futureBox.getFutureMovieType() != null) {
-            model.addAttribute("movieType", 
-                futureTypeService.findMovieById(futureBox.getFutureMovieType().longValue()));
-        }
+        // 각 타입 정보 조회
         if (futureBox.getFutureGifticonType() != null) {
             model.addAttribute("gifticonType", 
                 futureTypeService.findGifticonById(futureBox.getFutureGifticonType().longValue()));
         }
-        if (futureBox.getFutureInventionType() != null) {
-            model.addAttribute("inventionType", 
-                futureTypeService.findInventionById(futureBox.getFutureInventionType().longValue()));
-        }
         
-        // 관련 데이터 조회 - null이어도 모델에 추가
+        // 관련 데이터 조회
         model.addAttribute("faceMirror", futureFaceMirrorService.findByBoxId(futureBoxId));
         model.addAttribute("hologram", futureHologramService.findByBoxId(futureBoxId));
-        model.addAttribute("lotto", futureLottoService.findByBoxId(futureBoxId));
         model.addAttribute("note", futureNoteService.findByBoxId(futureBoxId));
+        model.addAttribute("tarot", futureTarotService.findByBoxId(futureBoxId));
+        model.addAttribute("perfume", futurePerfumeService.findByBoxId(futureBoxId));
         
         model.addAttribute("futureBox", futureBox);
         return "future-boxes/futureBox";
@@ -93,9 +88,7 @@ public class FutureBoxController {
 
     @GetMapping("/new")
     public String createForm(Model model) {
-        model.addAttribute("movies", futureTypeService.findFutureMoviesAll());
         model.addAttribute("gifticons", futureTypeService.findFutureGifticonsAll());
-        model.addAttribute("inventions", futureTypeService.findFutureInventionsAll());
         return "future-boxes/createFutureBoxForm";
     }
 
@@ -157,7 +150,7 @@ public class FutureBoxController {
         // 개봉 여부로 필터링
         if (isOpened != null) {
             searchResults = searchResults.stream()
-                    .filter(box -> box.getOpen().equals(isOpened))
+                    .filter(box -> box.getIsOpened().equals(isOpened))
                     .collect(Collectors.toList());
         }
         
@@ -192,10 +185,8 @@ public class FutureBoxController {
         FutureBox futureBox = futureBoxService.findById(futureBoxId);
         model.addAttribute("futureBox", futureBox);
         
-        // 타입 목록 추가
-        model.addAttribute("movies", futureTypeService.findFutureMoviesAll());
+        // 기프티콘 타입 목록만 추가
         model.addAttribute("gifticons", futureTypeService.findFutureGifticonsAll());
-        model.addAttribute("inventions", futureTypeService.findFutureInventionsAll());
         
         return "future-boxes/editFutureBoxForm";
     }

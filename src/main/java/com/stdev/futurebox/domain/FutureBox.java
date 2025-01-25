@@ -4,40 +4,30 @@ import java.sql.Timestamp;
 import java.util.UUID;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class FutureBox {
     private Long id;
     private UUID uuid;
     private String receiver;
     private String sender;
-    private Boolean open;
-    private Integer futureMovieType;
+    private Boolean isOpened;
     private Integer futureGifticonType;
-    private Integer futureInventionType;
+    private Boolean futureValueMeterIncluded;
     private Timestamp createdTime;
 
-    public FutureBox(UUID uuid, String receiver, String sender, Boolean open, Integer futureMovieType,
-                     Integer futureGifticonType, Integer futureInventionType, Timestamp createdTime) {
-        this.uuid = uuid;
+    public FutureBox(String receiver, String sender, Boolean isOpened, 
+                     Integer futureGifticonType, Boolean futureValueMeterIncluded, 
+                     Timestamp createdTime) {
+        this.uuid = UUID.randomUUID();
         this.receiver = receiver;
         this.sender = sender;
-        this.open = open;
-        this.futureMovieType = futureMovieType;
+        this.isOpened = isOpened;
         this.futureGifticonType = futureGifticonType;
-        this.futureInventionType = futureInventionType;
-        this.createdTime = createdTime;
-    }
-
-    public FutureBox(String receiver, String sender, Boolean open, Integer futureMovieType,
-                     Integer futureGifticonType, Integer futureInventionType, Timestamp createdTime) {
-        this.receiver = receiver;
-        this.sender = sender;
-        this.open = open;
-        this.futureMovieType = futureMovieType;
-        this.futureGifticonType = futureGifticonType;
-        this.futureInventionType = futureInventionType;
+        this.futureValueMeterIncluded = futureValueMeterIncluded;
         this.createdTime = createdTime;
     }
 }

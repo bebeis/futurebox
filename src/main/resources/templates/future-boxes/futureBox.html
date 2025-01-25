@@ -31,19 +31,11 @@
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">개봉 여부</div>
-                <div class="col-md-9" th:text="${futureBox.open ? '개봉됨' : '미개봉'}"></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-3 fw-bold">영화 타입</div>
-                <div class="col-md-9" th:text="${movieType != null ? movieType.name : '미지정'}"></div>
+                <div class="col-md-9" th:text="${futureBox.isOpened ? '개봉됨' : '미개봉'}"></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">기프티콘 타입</div>
                 <div class="col-md-9" th:text="${gifticonType != null ? gifticonType.name : '미지정'}"></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-3 fw-bold">발명품 타입</div>
-                <div class="col-md-9" th:text="${inventionType != null ? inventionType.name : '미지정'}"></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">생성일</div>
@@ -56,45 +48,6 @@
         <div class="card-body">
             <h5 class="card-title">추가 기능</h5>
             
-            <!-- Face Mirror -->
-            <div class="mb-2">
-                <span class="fw-bold">Face Mirror: </span>
-                <span th:if="${faceMirror != null}">
-                    <a th:href="@{/future-face-mirror/{id}(id=${faceMirror.id})}" 
-                       class="btn btn-info btn-sm">조회</a>
-                </span>
-                <span th:unless="${faceMirror != null}">
-                    <a th:href="@{/future-face-mirror/new(boxId=${futureBox.id})}" 
-                       class="btn btn-success btn-sm">생성</a>
-                </span>
-            </div>
-            
-            <!-- Hologram -->
-            <div class="mb-2">
-                <span class="fw-bold">Hologram: </span>
-                <span th:if="${hologram != null}">
-                    <a th:href="@{/future-hologram/{id}(id=${hologram.id})}" 
-                       class="btn btn-info btn-sm">조회</a>
-                </span>
-                <span th:unless="${hologram != null}">
-                    <a th:href="@{/future-hologram/new(boxId=${futureBox.id})}" 
-                       class="btn btn-success btn-sm">생성</a>
-                </span>
-            </div>
-            
-            <!-- Lotto -->
-            <div class="mb-2">
-                <span class="fw-bold">Lotto: </span>
-                <span th:if="${lotto != null}">
-                    <a th:href="@{/future-lotto/{id}(id=${lotto.id})}" 
-                       class="btn btn-info btn-sm">조회</a>
-                </span>
-                <span th:unless="${lotto != null}">
-                    <a th:href="@{/future-lotto/new(boxId=${futureBox.id})}" 
-                       class="btn btn-success btn-sm">생성</a>
-                </span>
-            </div>
-            
             <!-- Note -->
             <div class="mb-2">
                 <span class="fw-bold">Note: </span>
@@ -104,6 +57,32 @@
                 </span>
                 <span th:unless="${note != null}">
                     <a th:href="@{/future-note/new(boxId=${futureBox.id})}" 
+                       class="btn btn-success btn-sm">생성</a>
+                </span>
+            </div>
+            
+            <!-- Tarot -->
+            <div class="mb-2">
+                <span class="fw-bold">Tarot: </span>
+                <span th:if="${tarot != null}">
+                    <a th:href="@{/future-tarot/{id}(id=${tarot.id})}" 
+                       class="btn btn-info btn-sm">조회</a>
+                </span>
+                <span th:unless="${tarot != null}">
+                    <a th:href="@{/future-tarot/new(boxId=${futureBox.id})}" 
+                       class="btn btn-success btn-sm">생성</a>
+                </span>
+            </div>
+            
+            <!-- Perfume -->
+            <div class="mb-2">
+                <span class="fw-bold">Perfume: </span>
+                <span th:if="${perfume != null}">
+                    <a th:href="@{/future-perfume/{id}(id=${perfume.id})}" 
+                       class="btn btn-info btn-sm">조회</a>
+                </span>
+                <span th:unless="${perfume != null}">
+                    <a th:href="@{/future-perfume/new(boxId=${futureBox.id})}" 
                        class="btn btn-success btn-sm">생성</a>
                 </span>
             </div>

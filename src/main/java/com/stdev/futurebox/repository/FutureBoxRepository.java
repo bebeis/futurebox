@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 @Slf4j
 @Repository
@@ -22,107 +23,76 @@ public class FutureBoxRepository {
 
     private final DataSource dataSource;
 
-    public FutureBox save(FutureBox futureBox) throws SQLException {
-        String sql =
-                "INSERT INTO future_box (uuid, receiver, sender, is_opened, future_movie_type, future_gifticon_type, future_invention_type, created_at) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+    public void save(FutureBox box) throws SQLException {
+        String sql = "INSERT INTO future_box (receiver, sender, is_opened, future_gifticon_type, " +
+                    "future_value_meter_included, created_at, uuid) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
-        Connection con = null;
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
+        
         try {
-            con = getConnection();
             pstmt = con.prepareStatement(sql);
-            pstmt.setObject(1, futureBox.getUuid());
-            pstmt.setString(2, futureBox.getReceiver());
-            pstmt.setString(3, futureBox.getSender());
-            pstmt.setBoolean(4, futureBox.getOpen());
-            pstmt.setObject(5, futureBox.getFutureMovieType());
-            pstmt.setObject(6, futureBox.getFutureGifticonType());
-            pstmt.setObject(7, futureBox.getFutureInventionType());
-            pstmt.setTimestamp(8, futureBox.getCreatedTime());
+            pstmt.setString(1, box.getReceiver());
+            pstmt.setString(2, box.getSender());
+            pstmt.setBoolean(3, box.getIsOpened());
+            pstmt.setObject(4, box.getFutureGifticonType());
+            pstmt.setBoolean(5, box.getFutureValueMeterIncluded());
+            pstmt.setTimestamp(6, box.getCreatedTime());
+            pstmt.setObject(7, box.getUuid());
+            
             rs = pstmt.executeQuery();
-
             if (rs.next()) {
-                futureBox.setId(rs.getLong("id"));
+                box.setId(rs.getLong("id"));
             } else {
-                throw new SQLException("Creating FutureBox failed, no ID obtained.");
+                throw new SQLException("FutureBox 생성 실패");
             }
-            return futureBox;
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
         } finally {
-            close(con, pstmt, null);
+            close(null, pstmt, rs);
         }
     }
 
-    private void close(Connection con, Statement stmt, ResultSet rs) {
-
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.info("error", e);
+    public List<FutureBox> findAll(String orderBy, String direction) throws SQLException {
+        String sql = "SELECT * FROM future_box ORDER BY " + orderBy + " " + direction;
+        List<FutureBox> futureBoxes = new ArrayList<>();
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                FutureBox futureBox = mapToBox(rs);
+                futureBoxes.add(futureBox);
             }
+            return futureBoxes;
+        } finally {
+            close(null, pstmt, rs);
         }
-
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-
-        if (con != null) {
-            try {
-                con.close();
-            } catch (SQLException e) {
-                log.info("error", e);
-            }
-        }
-    }
-
-    private Connection getConnection() throws SQLException {
-        Connection con = dataSource.getConnection();
-        log.info("get connection={}, class={}", con, con.getClass());
-        return con;
     }
 
     public FutureBox findById(Long id) throws SQLException {
         String sql = "SELECT * FROM future_box WHERE id = ?";
-        Connection con = null;
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
+        
         try {
-            con = getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, id);
-
             rs = pstmt.executeQuery();
+            
             if (rs.next()) {
-                FutureBox futureBox = new FutureBox();
-                futureBox.setId(rs.getLong("id"));
-                futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
-                futureBox.setReceiver(rs.getString("receiver"));
-                futureBox.setSender(rs.getString("sender"));
-                futureBox.setOpen(rs.getBoolean("is_opened"));
-                futureBox.setFutureMovieType(rs.getInt("future_movie_type"));
-                futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
-                futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
-                futureBox.setCreatedTime(rs.getTimestamp("created_at"));
-                return futureBox;
-            } else {
-                throw new NoSuchElementException("No such future box with id: " + id);
+                return mapToBox(rs);
             }
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
+            throw new NoSuchElementException("해당 ID의 FutureBox가 없습니다: " + id);
         } finally {
-            close(con, pstmt, rs);
+            close(null, pstmt, rs);
         }
     }
 
@@ -139,17 +109,7 @@ public class FutureBoxRepository {
 
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                FutureBox futureBox = new FutureBox();
-                futureBox.setId(rs.getLong("id"));
-                futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
-                futureBox.setReceiver(rs.getString("receiver"));
-                futureBox.setSender(rs.getString("sender"));
-                futureBox.setOpen(rs.getBoolean("is_opened"));
-                futureBox.setFutureMovieType(rs.getInt("future_movie_type"));
-                futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
-                futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
-                futureBox.setCreatedTime(rs.getTimestamp("created_at"));
-                return futureBox;
+                return mapToBox(rs);
             } else {
                 throw new NoSuchElementException("No such future box with uuid: " + uuid);
             }
@@ -175,16 +135,7 @@ public class FutureBoxRepository {
             rs = pstmt.executeQuery();
             List<FutureBox> futureBoxes = new ArrayList<>();
             while (rs.next()) {
-                FutureBox futureBox = new FutureBox();
-                futureBox.setId(rs.getLong("id"));
-                futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
-                futureBox.setReceiver(rs.getString("receiver"));
-                futureBox.setSender(rs.getString("sender"));
-                futureBox.setOpen(rs.getBoolean("is_opened"));
-                futureBox.setFutureMovieType(rs.getInt("future_movie_type"));
-                futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
-                futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
-                futureBox.setCreatedTime(rs.getTimestamp("created_at"));
+                FutureBox futureBox = mapToBox(rs);
                 futureBoxes.add(futureBox);
             }
             return futureBoxes;
@@ -210,16 +161,7 @@ public class FutureBoxRepository {
             rs = pstmt.executeQuery();
             List<FutureBox> futureBoxes = new ArrayList<>();
             while (rs.next()) {
-                FutureBox futureBox = new FutureBox();
-                futureBox.setId(rs.getLong("id"));
-                futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
-                futureBox.setReceiver(rs.getString("receiver"));
-                futureBox.setSender(rs.getString("sender"));
-                futureBox.setOpen(rs.getBoolean("is_opened"));
-                futureBox.setFutureMovieType(rs.getInt("future_movie_type"));
-                futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
-                futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
-                futureBox.setCreatedTime(rs.getTimestamp("created_at"));
+                FutureBox futureBox = mapToBox(rs);
                 futureBoxes.add(futureBox);
             }
             return futureBoxes;
@@ -231,40 +173,36 @@ public class FutureBoxRepository {
         }
     }
 
-    public List<FutureBox> findAll(String sortField, String sortDirection) throws SQLException {
-        String sql = "SELECT * FROM future_box ORDER BY " + 
-                    (sortField != null ? sortField : "created_at") + 
-                    " " + (sortDirection != null ? sortDirection : "DESC");
-        Connection con = null;
-        PreparedStatement ptsmt = null;
-        ResultSet rs = null;
+    public List<FutureBox> findByKeyword(String searchType, String keyword, Boolean isOpened) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT * FROM future_box WHERE 1=1");
+        List<Object> params = new ArrayList<>();
 
-        try {
-            con = getConnection();
-            ptsmt = con.prepareStatement(sql);
-            rs = ptsmt.executeQuery();
-
-            List<FutureBox> futureBoxes = new ArrayList<>();
-            while (rs.next()) {
-                FutureBox futureBox = new FutureBox();
-                futureBox.setId(rs.getLong("id"));
-                futureBox.setUuid(java.util.UUID.fromString(rs.getString("uuid")));
-                futureBox.setReceiver(rs.getString("receiver"));
-                futureBox.setSender(rs.getString("sender"));
-                futureBox.setOpen(rs.getBoolean("is_opened"));
-                futureBox.setFutureMovieType(rs.getInt("future_movie_type"));
-                futureBox.setFutureGifticonType(rs.getInt("future_gifticon_type"));
-                futureBox.setFutureInventionType(rs.getInt("future_invention_type"));
-                futureBox.setCreatedTime(rs.getTimestamp("created_at"));
-                futureBoxes.add(futureBox);
-            }
-            return futureBoxes;
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
-        } finally {
-            close(con, ptsmt, rs);
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND ").append(searchType).append(" LIKE ?");
+            params.add("%" + keyword + "%");
         }
+
+        if (isOpened != null) {
+            sql.append(" AND is_opened = ?");
+            params.add(isOpened);
+        }
+
+        List<FutureBox> results = new ArrayList<>();
+        try (Connection con = getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    FutureBox futureBox = mapToBox(rs);
+                    results.add(futureBox);
+                }
+            }
+        }
+        return results;
     }
 
     public void deleteById(Long id) throws SQLException {
@@ -287,47 +225,108 @@ public class FutureBoxRepository {
         }
     }
 
-    public void update(FutureBox futureBox) throws SQLException {
-        String sql = "UPDATE future_box SET receiver = ?, sender = ?, is_opened = ?, future_movie_type = ?, future_gifticon_type = ?, future_invention_type = ?, created_at = ? WHERE id = ?";
-        Connection con = null;
+    public void update(FutureBox box) throws SQLException {
+        String sql = "UPDATE future_box SET receiver = ?, sender = ?, is_opened = ?, " +
+                    "future_gifticon_type = ?, future_value_meter_included = ?, " +
+                    "created_at = ? WHERE id = ?";
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
-
+        
         try {
-            con = getConnection();
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, futureBox.getReceiver());
-            pstmt.setString(2, futureBox.getSender());
-            pstmt.setBoolean(3, futureBox.getOpen());
-            pstmt.setObject(4, futureBox.getFutureMovieType());
-            pstmt.setObject(5, futureBox.getFutureGifticonType());
-            pstmt.setObject(6, futureBox.getFutureInventionType());
-            pstmt.setTimestamp(7, futureBox.getCreatedTime());
-            pstmt.setLong(8, futureBox.getId());
+            pstmt.setString(1, box.getReceiver());
+            pstmt.setString(2, box.getSender());
+            pstmt.setBoolean(3, box.getIsOpened());
+            pstmt.setObject(4, box.getFutureGifticonType());
+            pstmt.setBoolean(5, box.getFutureValueMeterIncluded());
+            pstmt.setTimestamp(6, box.getCreatedTime());
+            pstmt.setLong(7, box.getId());
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            log.error("db error", e);
-            throw e;
         } finally {
-            close(con, pstmt, null);
+            close(null, pstmt, null);
         }
     }
 
     public void deleteLogsByBoxId(Long boxId) throws SQLException {
         String sql = "DELETE FROM future_box_logs WHERE box_id = ?";
-        Connection con = null;
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
         PreparedStatement pstmt = null;
-
+        
         try {
-            con = getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boxId);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            log.error("로그 삭제 실패", e);
-            throw e;
         } finally {
-            close(con, pstmt, null);
+            close(null, pstmt, null);
+        }
+    }
+
+    public long count() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM future_box";
+        
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+                return 0L;
+            }
+        }
+    }
+
+    public long countByOpenTrue() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM future_box WHERE is_opened = true";
+        
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+                return 0L;
+            }
+        }
+    }
+
+    private FutureBox mapToBox(ResultSet rs) throws SQLException {
+        FutureBox box = new FutureBox();
+        box.setId(rs.getLong("id"));
+        box.setReceiver(rs.getString("receiver"));
+        box.setSender(rs.getString("sender"));
+        box.setIsOpened(rs.getBoolean("is_opened"));
+        box.setFutureGifticonType((Integer) rs.getObject("future_gifticon_type"));
+        box.setFutureValueMeterIncluded(rs.getBoolean("future_value_meter_included"));
+        box.setCreatedTime(rs.getTimestamp("created_at"));
+        box.setUuid((UUID) rs.getObject("uuid"));
+        return box;
+    }
+
+    private Connection getConnection() throws SQLException {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        return connection;
+    }
+
+    private void close(Connection con, Statement stmt, ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                log.error("ResultSet 닫기 실패", e);
+            }
+        }
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                log.error("Statement 닫기 실패", e);
+            }
         }
     }
 }
+
 

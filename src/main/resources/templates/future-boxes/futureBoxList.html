@@ -81,7 +81,7 @@
                     <td th:text="${box.id}"></td>
                     <td th:text="${box.receiver}"></td>
                     <td th:text="${box.sender}"></td>
-                    <td th:text="${box.open ? '개봉됨' : '미개봉'}"></td>
+                    <td th:text="${box.isOpened ? '개봉됨' : '미개봉'}"></td>
                     <td th:text="${#dates.format(box.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
                     <td th:text="${box.uuid}"></td>
                 </tr>

@@ -10,9 +10,12 @@ public class DailyStatistics {
     private LocalDate date;
     private Long totalCount;
     private Long openedCount;
-    private Long movieCount;
     private Long gifticonCount;
-    private Long inventionCount;
+    private Long noteCount;
+    private Long hologramCount;
+    private Long tarotCount;
+    private Long perfumeCount;
+    private Long faceMirrorCount;
 
     public double getOpenRate() {
         return totalCount == 0 ? 0 : (double) openedCount / totalCount * 100;

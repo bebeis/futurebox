@@ -5,8 +5,9 @@ import com.stdev.futurebox.dto.FutureBoxCreateForm;
 import com.stdev.futurebox.repository.FutureBoxRepository;
 import com.stdev.futurebox.repository.FutureFaceMirrorRepository;
 import com.stdev.futurebox.repository.FutureHologramRepository;
-import com.stdev.futurebox.repository.FutureLottoRepository;
 import com.stdev.futurebox.repository.FutureNoteRepository;
+import com.stdev.futurebox.repository.FutureTarotRepository;
+import com.stdev.futurebox.repository.FuturePerfumeRepository;
 import com.stdev.futurebox.util.UuidGenerator;
 import java.sql.SQLException;
 import java.util.List;
@@ -28,13 +29,15 @@ public class FutureBoxService {
 
     private final FutureHologramRepository futureHologramRepository;
 
-    private final FutureLottoRepository futureLottoRepository;
-
     private final FutureNoteRepository futureNoteRepository;
+
+    private final FutureTarotRepository futureTarotRepository;
+
+    private final FuturePerfumeRepository futurePerfumeRepository;
 
     @Transactional
     public Long create(FutureBox futureBox) {
-        futureBox.setOpen(false);
+        futureBox.setIsOpened(false);
         futureBox.setUuid(UuidGenerator.generateUuid());
         try {
             futureBoxRepository.save(futureBox);
@@ -76,14 +79,17 @@ public class FutureBoxService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<FutureBox> findAll(String sortField, String sortDirection) {
         try {
             return futureBoxRepository.findAll(sortField, sortDirection);
         } catch (SQLException e) {
+            log.error("FutureBox 목록 조회 실패", e);
             throw new IllegalArgumentException("FutureBox not found.");
         }
     }
 
+    @Transactional(readOnly = true)
     public List<FutureBox> findAll() {
         return findAll("created_at", "DESC");
     }
@@ -104,15 +110,21 @@ public class FutureBoxService {
             }
 
             try {
-                futureLottoRepository.deleteByBoxId(id);
-            } catch (Exception e) {
-                log.warn("FutureLotto 삭제 실패", e);
-            }
-
-            try {
                 futureNoteRepository.deleteByBoxId(id);
             } catch (Exception e) {
                 log.warn("FutureNote 삭제 실패", e);
+            }
+
+            try {
+                futureTarotRepository.deleteByBoxId(id);
+            } catch (Exception e) {
+                log.warn("FutureTarot 삭제 실패", e);
+            }
+
+            try {
+                futurePerfumeRepository.deleteByBoxId(id);
+            } catch (Exception e) {
+                log.warn("FuturePerfume 삭제 실패", e);
             }
 
             futureBoxRepository.deleteById(id);
@@ -127,6 +139,17 @@ public class FutureBoxService {
             futureBoxRepository.update(futureBox);
         } catch (SQLException e) {
             throw new IllegalArgumentException("FutureBox not found.");
+        }
+    }
+
+    @Transactional
+    public void updateValueMeter(Long id, Boolean included) {
+        try {
+            FutureBox box = findById(id);
+            box.setFutureValueMeterIncluded(included);
+            futureBoxRepository.update(box);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Value Meter 업데이트 실패", e);
         }
     }
 

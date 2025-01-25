@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">Perfume 수정</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form th:action="@{/future-perfume/edit/{id}(id=${perfume.id})}" method="post" class="card">
+                <div class="card-body">
+                    <input type="hidden" name="boxId" th:value="${perfume.boxId}">
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">향수 이름</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               th:value="${perfume.name}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="scent" class="form-label">향</label>
+                        <input type="text" class="form-control" id="scent" name="scent" 
+                               th:value="${perfume.scent}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">설명</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                rows="3" required th:text="${perfume.description}"></textarea>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary me-2">수정</button>
+                        <a th:href="@{/future-perfume/{id}(id=${perfume.id})}" 
+                           class="btn btn-secondary">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html> 

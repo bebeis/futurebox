@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}">
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center my-4">Tarot 상세정보</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">카드 이름</div>
+                <div class="col-md-9" th:text="${tarot.cardName}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">해석</div>
+                <div class="col-md-9" th:text="${tarot.interpretation}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">이미지</div>
+                <div class="col-md-9">
+                    <img th:if="${tarot.imageUrl}" th:src="${tarot.imageUrl}" 
+                         class="img-fluid" style="max-width: 300px;" alt="타로 카드 이미지">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/future-tarot/edit/{id}(id=${tarot.id})}" class="btn btn-primary me-2">수정</a>
+        <button onclick="deleteTarot()" class="btn btn-danger me-2">삭제</button>
+        <a th:href="@{/future-boxes/{id}(id=${tarot.boxId})}" class="btn btn-secondary">FutureBox로 돌아가기</a>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+function deleteTarot() {
+    if (confirm('정말로 이 Tarot을 삭제하시겠습니까?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/future-tarot/delete/' + [[${tarot.id}]];
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+</body>
+</html> 
