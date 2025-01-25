@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -169,6 +170,30 @@ public class FuturePerfumeRepository {
         }
         if (conn != null) {
             conn.close();
+        }
+    }
+
+    public void update(FuturePerfume perfume) throws SQLException {
+        String sql = "UPDATE future_perfume SET box_id = ?, name = ?, description = ?, " +
+                    "keywords = ?, shape_type = ?, color = ?, outline_type = ? WHERE id = ?";
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
+        PreparedStatement pstmt = null;
+        
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, perfume.getBoxId());
+            pstmt.setString(2, perfume.getName());
+            pstmt.setString(3, perfume.getDescription());
+            pstmt.setArray(4, con.createArrayOf("varchar", perfume.getKeywords()));
+            pstmt.setInt(5, perfume.getShapeType());
+            pstmt.setInt(6, perfume.getColor());
+            pstmt.setInt(7, perfume.getOutlineType());
+            pstmt.setLong(8, perfume.getId());
+            
+            pstmt.executeUpdate();
+        } finally {
+            close(null, pstmt, null);
         }
     }
 } 

@@ -13,19 +13,34 @@
                     <input type="hidden" name="boxId" th:value="${param.boxId}">
                     
                     <div class="mb-3">
-                        <label for="name" class="form-label">향수 이름</label>
+                        <label for="name" class="form-label">이름</label>
                         <input type="text" class="form-control" id="name" name="name" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="scent" class="form-label">향</label>
-                        <input type="text" class="form-control" id="scent" name="scent" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="description" class="form-label">설명</label>
                         <textarea class="form-control" id="description" name="description" 
-                                rows="3" required></textarea>
+                                rows="5" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="keywords" class="form-label">키워드</label>
+                        <input type="text" class="form-control" id="keywords" name="keywords" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shapeType" class="form-label">모양 타입</label>
+                        <input type="number" class="form-control" id="shapeType" name="shapeType" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="color" class="form-label">색상</label>
+                        <input type="number" class="form-control" id="color" name="color" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="outlineType" class="form-label">외곽선 타입</label>
+                        <input type="number" class="form-control" id="outlineType" name="outlineType" required>
                     </div>
 
                     <div class="text-center">
@@ -38,5 +53,7 @@
         </div>
     </div>
 </div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html> 

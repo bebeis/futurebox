@@ -6,7 +6,7 @@
 <div class="container">
     <h2 class="text-center my-4">Hologram 상세정보</h2>
 
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">ID</div>
@@ -17,16 +17,8 @@
                 <div class="col-md-9" th:text="${hologram.boxId}"></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-3 fw-bold">메시지</div>
-                <div class="col-md-9" th:text="${hologram.message}"></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-3 fw-bold">이미지</div>
-                <div class="col-md-9">
-                    <a href="#" th:data-url="${hologram.imageUrl}" onclick="showImageWarning(this.getAttribute('data-url'))">
-                        <span th:text="${hologram.imageUrl}"></span>
-                    </a>
-                </div>
+                <div class="col-md-3 fw-bold">이미지 URL</div>
+                <div class="col-md-9" th:text="${hologram.imageUrl}"></div>
             </div>
         </div>
     </div>
@@ -49,13 +41,6 @@ function deleteHologram() {
         document.body.appendChild(form);
         form.submit();
     }
-}
-
-function showImageWarning(imageUrl) {
-    if (confirm('주의: 이 이미지는 개인정보가 포함되어 있을 수 있습니다. 계속하시겠습니까?')) {
-        window.open(imageUrl, '_blank');
-    }
-    return false;
 }
 </script>
 </body>

@@ -63,4 +63,23 @@ public class FutureTarotService {
             throw new IllegalArgumentException("Deleting FutureTarot failed.");
         }
     }
+
+    @Transactional
+    public void update(Long id, FutureTarot tarot) {
+        try {
+            FutureTarot existingTarot = findById(id);
+            if (existingTarot == null) {
+                throw new IllegalArgumentException("해당 ID의 FutureTarot가 존재하지 않습니다: " + id);
+            }
+            
+            // 기존 ID 유지
+            tarot.setId(id);
+            
+            // 업데이트 수행
+            futureTarotRepository.update(tarot);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("Updating FutureTarot failed.");
+        }
+    }
+
 } 

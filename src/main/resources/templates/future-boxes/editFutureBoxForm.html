@@ -10,6 +10,8 @@
         <div class="col-md-8">
             <form th:action="@{/future-boxes/edit/{id}(id=${futureBox.id})}" method="post" class="card">
                 <div class="card-body">
+                    <input type="hidden" name="id" th:value="${futureBox.id}">
+                    
                     <div class="mb-3">
                         <label for="receiver" class="form-label">수신자</label>
                         <input type="text" class="form-control" id="receiver" name="receiver" 
@@ -20,6 +22,22 @@
                         <label for="sender" class="form-label">발신자</label>
                         <input type="text" class="form-control" id="sender" name="sender" 
                                th:value="${futureBox.sender}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="isOpened" class="form-label">개봉 여부</label>
+                        <select class="form-select" id="isOpened" name="isOpened">
+                            <option value="false" th:selected="${!futureBox.isOpened}">미개봉</option>
+                            <option value="true" th:selected="${futureBox.isOpened}">개봉됨</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="futureValueMeterIncluded" class="form-label">Value Meter 포함 여부</label>
+                        <select class="form-select" id="futureValueMeterIncluded" name="futureValueMeterIncluded">
+                            <option value="false" th:selected="${!futureBox.futureValueMeterIncluded}">미포함</option>
+                            <option value="true" th:selected="${futureBox.futureValueMeterIncluded}">포함</option>
+                        </select>
                     </div>
 
                     <div class="mb-3">

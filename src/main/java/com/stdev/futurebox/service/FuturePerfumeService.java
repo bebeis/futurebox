@@ -63,4 +63,13 @@ public class FuturePerfumeService {
             throw new IllegalArgumentException("Deleting FuturePerfume failed.");
         }
     }
+
+    @Transactional
+    public void update(FuturePerfume perfume) {
+        try {
+            futurePerfumeRepository.update(perfume);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("Updating FuturePerfume failed.");
+        }
+    }
 } 

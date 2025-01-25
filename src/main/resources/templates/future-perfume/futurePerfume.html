@@ -9,16 +9,36 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row mb-3">
-                <div class="col-md-3 fw-bold">향수 이름</div>
-                <div class="col-md-9" th:text="${perfume.name}"></div>
+                <div class="col-md-3 fw-bold">ID</div>
+                <div class="col-md-9" th:text="${perfume.id}"></div>
             </div>
             <div class="row mb-3">
-                <div class="col-md-3 fw-bold">향</div>
-                <div class="col-md-9" th:text="${perfume.scent}"></div>
+                <div class="col-md-3 fw-bold">Box ID</div>
+                <div class="col-md-9" th:text="${perfume.boxId}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">이름</div>
+                <div class="col-md-9" th:text="${perfume.name}"></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 fw-bold">설명</div>
                 <div class="col-md-9" th:text="${perfume.description}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">키워드</div>
+                <div class="col-md-9" th:text="${#strings.arrayJoin(perfume.keywords, ', ')}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">모양 타입</div>
+                <div class="col-md-9" th:text="${perfume.shapeType}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">색상</div>
+                <div class="col-md-9" th:text="${perfume.color}"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">외곽선 타입</div>
+                <div class="col-md-9" th:text="${perfume.outlineType}"></div>
             </div>
         </div>
     </div>

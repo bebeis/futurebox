@@ -34,6 +34,10 @@
                 <div class="col-md-9" th:text="${futureBox.isOpened ? '개봉됨' : '미개봉'}"></div>
             </div>
             <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Value Meter 포함 여부</div>
+                <div class="col-md-9" th:text="${futureBox.futureValueMeterIncluded ? '포함' : '미포함'}"></div>
+            </div>
+            <div class="row mb-3">
                 <div class="col-md-3 fw-bold">기프티콘 타입</div>
                 <div class="col-md-9" th:text="${gifticonType != null ? gifticonType.name : '미지정'}"></div>
             </div>
@@ -83,6 +87,32 @@
                 </span>
                 <span th:unless="${perfume != null}">
                     <a th:href="@{/future-perfume/new(boxId=${futureBox.id})}" 
+                       class="btn btn-success btn-sm">생성</a>
+                </span>
+            </div>
+
+            <!-- Hologram -->
+            <div class="mb-2">
+                <span class="fw-bold">Hologram: </span>
+                <span th:if="${hologram != null}">
+                    <a th:href="@{/future-hologram/{id}(id=${hologram.id})}" 
+                       class="btn btn-info btn-sm">조회</a>
+                </span>
+                <span th:unless="${hologram != null}">
+                    <a th:href="@{/future-hologram/new(boxId=${futureBox.id})}" 
+                       class="btn btn-success btn-sm">생성</a>
+                </span>
+            </div>
+
+            <!-- Face Mirror -->
+            <div class="mb-2">
+                <span class="fw-bold">Face Mirror: </span>
+                <span th:if="${faceMirror != null}">
+                    <a th:href="@{/future-face-mirror/{id}(id=${faceMirror.id})}" 
+                       class="btn btn-info btn-sm">조회</a>
+                </span>
+                <span th:unless="${faceMirror != null}">
+                    <a th:href="@{/future-face-mirror/new(boxId=${futureBox.id})}" 
                        class="btn btn-success btn-sm">생성</a>
                 </span>
             </div>

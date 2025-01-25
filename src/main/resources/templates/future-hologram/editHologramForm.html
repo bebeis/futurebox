@@ -10,14 +10,9 @@
         <div class="col-md-8">
             <form th:action="@{/future-hologram/edit/{id}(id=${hologram.id})}" method="post" class="card">
                 <div class="card-body">
+                    <input type="hidden" name="id" th:value="${hologram.id}">
                     <input type="hidden" name="boxId" th:value="${hologram.boxId}">
                     
-                    <div class="mb-3">
-                        <label for="message" class="form-label">메시지</label>
-                        <textarea class="form-control" id="message" name="message" 
-                                rows="5" required th:text="${hologram.message}"></textarea>
-                    </div>
-
                     <div class="mb-3">
                         <label for="imageUrl" class="form-label">이미지 URL</label>
                         <input type="url" class="form-control" id="imageUrl" name="imageUrl" 
@@ -26,8 +21,7 @@
 
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary me-2">수정</button>
-                        <a th:href="@{/future-hologram/{id}(id=${hologram.id})}" 
-                           class="btn btn-secondary">취소</a>
+                        <a th:href="@{/future-boxes/{id}(id=${hologram.boxId})}" class="btn btn-secondary">취소</a>
                     </div>
                 </div>
             </form>

@@ -139,6 +139,25 @@ public class FutureTarotRepository {
         }
     }
 
+    public void update(FutureTarot tarot) throws SQLException {
+        String sql = "UPDATE future_tarot SET box_id = ?, card_indexes = ?, description = ? WHERE id = ?";
+        
+        Connection con = DataSourceUtils.getConnection(dataSource);
+        PreparedStatement pstmt = null;
+        
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, tarot.getBoxId());
+            pstmt.setArray(2, con.createArrayOf("integer", tarot.getIndexes()));
+            pstmt.setString(3, tarot.getDescription());
+            pstmt.setLong(4, tarot.getId());
+            
+            pstmt.executeUpdate();
+        } finally {
+            close(null, pstmt, null);
+        }
+    }
+
     private FutureTarot mapToTarot(ResultSet rs) throws SQLException {
         FutureTarot tarot = new FutureTarot();
         tarot.setId(rs.getLong("id"));

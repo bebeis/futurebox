@@ -8,10 +8,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FutureHologramCreateForm {
     private Long boxId;
-    private String message;
     private String imageUrl;
 
     public FutureHologram toEntity() {
-        return new FutureHologram(boxId, message, imageUrl);
+        return new FutureHologram(
+            null,  // id는 DB에서 생성
+            boxId,
+            imageUrl
+        );
     }
 }

@@ -10,22 +10,19 @@
         <div class="col-md-8">
             <form th:action="@{/future-tarot/edit/{id}(id=${tarot.id})}" method="post" class="card">
                 <div class="card-body">
+                    <input type="hidden" name="id" th:value="${tarot.id}">
+                    <input type="hidden" name="boxId" th:value="${tarot.boxId}">
+                    
                     <div class="mb-3">
-                        <label for="cardName" class="form-label">카드 이름</label>
-                        <input type="text" class="form-control" id="cardName" name="cardName" 
-                               th:value="${tarot.cardName}" required>
+                        <label for="indexes" class="form-label">카드 인덱스</label>
+                        <input type="text" class="form-control" id="indexes" name="indexes" 
+                               th:value="${#strings.arrayJoin(tarot.indexes, ',')}" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="interpretation" class="form-label">해석</label>
-                        <textarea class="form-control" id="interpretation" name="interpretation" 
-                                rows="5" th:text="${tarot.interpretation}" required></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="imageUrl" class="form-label">카드 이미지 URL</label>
-                        <input type="url" class="form-control" id="imageUrl" name="imageUrl" 
-                               th:value="${tarot.imageUrl}" required>
+                        <label for="description" class="form-label">해석</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                rows="5" th:text="${tarot.description}" required></textarea>
                     </div>
 
                     <div class="text-center">

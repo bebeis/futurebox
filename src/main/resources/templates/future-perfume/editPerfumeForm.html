@@ -10,30 +10,48 @@
         <div class="col-md-8">
             <form th:action="@{/future-perfume/edit/{id}(id=${perfume.id})}" method="post" class="card">
                 <div class="card-body">
+                    <input type="hidden" name="id" th:value="${perfume.id}">
                     <input type="hidden" name="boxId" th:value="${perfume.boxId}">
                     
                     <div class="mb-3">
-                        <label for="name" class="form-label">향수 이름</label>
+                        <label for="name" class="form-label">이름</label>
                         <input type="text" class="form-control" id="name" name="name" 
                                th:value="${perfume.name}" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="scent" class="form-label">향</label>
-                        <input type="text" class="form-control" id="scent" name="scent" 
-                               th:value="${perfume.scent}" required>
+                        <label for="description" class="form-label">설명</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                rows="5" th:text="${perfume.description}" required></textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label for="description" class="form-label">설명</label>
-                        <textarea class="form-control" id="description" name="description" 
-                                rows="3" required th:text="${perfume.description}"></textarea>
+                        <label for="keywords" class="form-label">키워드</label>
+                        <input type="text" class="form-control" id="keywords" name="keywords" 
+                               th:value="${#strings.arrayJoin(perfume.keywords, ',')}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shapeType" class="form-label">모양 타입</label>
+                        <input type="number" class="form-control" id="shapeType" name="shapeType" 
+                               th:value="${perfume.shapeType}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="color" class="form-label">색상</label>
+                        <input type="number" class="form-control" id="color" name="color" 
+                               th:value="${perfume.color}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="outlineType" class="form-label">외곽선 타입</label>
+                        <input type="number" class="form-control" id="outlineType" name="outlineType" 
+                               th:value="${perfume.outlineType}" required>
                     </div>
 
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary me-2">수정</button>
-                        <a th:href="@{/future-perfume/{id}(id=${perfume.id})}" 
-                           class="btn btn-secondary">취소</a>
+                        <a th:href="@{/future-boxes/{id}(id=${perfume.boxId})}" class="btn btn-secondary">취소</a>
                     </div>
                 </div>
             </form>
