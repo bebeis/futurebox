@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ public class StatisticsService {
     private final DataSource dataSource;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getDashboardStats() throws SQLException {
+    public Map<String, Object> getDashboardStats(LocalDate startDate, LocalDate endDate) throws SQLException {
         Map<String, Object> stats = new LinkedHashMap<>();
         Connection con = DataSourceUtils.getConnection(dataSource);
         
@@ -32,7 +33,9 @@ public class StatisticsService {
             stats.put("totalBoxes", getTotalBoxes(con));
             
             // 일별 생성 통계 (최근 7일 기준으로 정렬 수정)
-            stats.put("dailyCreation", getDailyCreation(con));
+            stats.put("dailyCreation", getDailyCreation(con, 
+                startDate != null ? startDate : LocalDate.now().minusDays(7),
+                endDate != null ? endDate : LocalDate.now()));
             
             // 리텐션 통계 (수신자가 발신자가 되는 비율)
             stats.put("retention", getRetention(con));
@@ -76,16 +79,18 @@ public class StatisticsService {
         }
     }
 
-    private List<Map<String, Object>> getDailyCreation(Connection con) throws SQLException {
+    private List<Map<String, Object>> getDailyCreation(Connection con, LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = "SELECT DATE(created_at) as date, COUNT(*) as count "
                    + "FROM future_box "
-                   + "WHERE created_at >= CURRENT_DATE - INTERVAL '7 days' "
+                   + "WHERE created_at >= ? AND created_at < ? "
                    + "GROUP BY DATE(created_at) "
                    + "ORDER BY date ASC";
         
         List<Map<String, Object>> result = new ArrayList<>();
-        try (PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
+            pstmt.setDate(2, java.sql.Date.valueOf(endDate.plusDays(1))); // 포함 종료일 다음날 00:00까지
+            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Map<String, Object> day = new LinkedHashMap<>();
                 day.put("date", rs.getDate("date").toString());

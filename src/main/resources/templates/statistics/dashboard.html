@@ -10,8 +10,19 @@
 
     <!-- 일별 생성 차트 -->
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">일별 FutureBox 생성 추이</h5>
+            <form method="get" class="row g-2">
+                <div class="col-auto">
+                    <input type="date" class="form-control" name="startDate" th:value="${param.startDate}">
+                </div>
+                <div class="col-auto">
+                    <input type="date" class="form-control" name="endDate" th:value="${param.endDate}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">조회</button>
+                </div>
+            </form>
         </div>
         <div class="card-body">
             <div class="chart-container" style="position: relative; height: 400px;">
@@ -130,15 +141,30 @@
 
 <script th:inline="javascript">
 /*<![CDATA[*/
-    // 일별 생성 차트
+    // 차트 데이터 파싱
     const dailyData = /*[[${stats.dailyCreation}]]*/ [];
     const dates = dailyData.map(item => {
         const [year, month, day] = item.date.split('-');
-        return new Date(year, month-1, day).toLocaleDateString();
+        return new Date(year, month-1, day).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
     });
     const counts = dailyData.map(item => item.count);
 
-    new Chart(document.getElementById('dailyChart'), {
+    // 기존 차트 완전히 제거
+    const chartCanvas = document.getElementById('dailyChart');
+    const existingChart = Chart.getChart(chartCanvas);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+    
+    // 새로운 차트 생성
+    const ctx = chartCanvas.getContext('2d');
+    ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+    
+    new Chart(chartCanvas, {
         type: 'line',
         data: {
             labels: dates,

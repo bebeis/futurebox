@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,9 +22,11 @@ public class StatisticsController {
     private final StatisticsService statisticsService;
 
     @GetMapping("/statistics")
-    public String dashboard(Model model) {
+    public String dashboard(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                            Model model) {
         try {
-            Map<String, Object> stats = statisticsService.getDashboardStats();
+            Map<String, Object> stats = statisticsService.getDashboardStats(startDate, endDate);
             
             // 기능 사용률을 리스트로 재구성
             List<Map<String, Object>> features = new ArrayList<>();
