@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"></head>
+<body>
+<!-- Chart.js 라이브러리 추가 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+    <h1 class="my-4">통계 대시보드</h1>
+
+    <!-- 일별 생성 차트 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">일별 FutureBox 생성 추이</h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="position: relative; height: 400px;">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 주요 지표 -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">기본 통계</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="fw-bold">전체 FutureBox 수: </span>
+                        <span th:text="${#numbers.formatInteger(stats.totalBoxes, 0)}">0</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="fw-bold">리텐션 비율: </span>
+                        <span th:text="${#numbers.formatDecimal(stats.retention.rate, 1, 1)} + '%'">0%</span>
+                        <div class="progress mt-1">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 th:style="'width:' + ${stats.retention.rate} + '%'"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <span class="fw-bold">개봉율: </span>
+                        <span th:text="${stats.openRate.rate} + '%'">0%</span>
+                        <div class="progress mt-1">
+                            <div class="progress-bar" role="progressbar" 
+                                 th:style="'width:' + ${stats.openRate.rate} + '%'"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="fw-bold">Value Meter 포함율: </span>
+                        <span th:text="${stats.valueMeter.rate} + '%'">0%</span>
+                        <div class="progress mt-1">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 th:style="'width:' + ${stats.valueMeter.rate} + '%'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 기능 사용 현황 -->
+        <div class="col-md-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header">기능 사용 비율</div>
+                <div class="card-body row">
+                    <div class="col-md-6" th:each="feature : ${features}">
+                        <div class="mb-3">
+                            <span class="fw-bold" th:text="${feature.name} + ': '"></span>
+                            <span th:text="${feature.rate} + '%'">0%</span>
+                            <div class="progress mt-1">
+                                <div class="progress-bar" role="progressbar" 
+                                     th:style="'width:' + ${feature.rate} + '%'"
+                                     th:classappend="${feature.rate > 50} ? 'bg-success' : 'bg-info'"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 추가 기능 통계 -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <span class="fw-bold">기프티콘 이용: </span>
+                            <span th:text="${#numbers.formatDecimal(stats.gifticonUsage.rate, 1, 1)} + '%'">0%</span>
+                            <div class="progress mt-1">
+                                <div class="progress-bar" role="progressbar" 
+                                     th:style="'width:' + ${stats.gifticonUsage.rate} + '%'"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <span class="fw-bold">암호화 메시지: </span>
+                            <span th:text="${#numbers.formatDecimal(stats.encryptionRate.rate, 1, 1)} + '%'">0%</span>
+                            <div class="progress mt-1">
+                                <div class="progress-bar" role="progressbar" 
+                                     th:style="'width:' + ${stats.encryptionRate.rate} + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 기프티콘 타입 분포 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">기프티콘 타입별 사용 현황</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>타입명</th>
+                        <th>사용량</th>
+                        <th>비율</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="type : ${stats.gifticonTypes}">
+                        <td th:text="${type.name}">미지정</td>
+                        <td th:text="${type.count}">0</td>
+                        <td th:text="${#numbers.formatDecimal((type.count / stats.totalBoxes) * 100, 1, 1)} + '%'">0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-secondary">메인으로</a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+    // 일별 생성 차트
+    const dailyData = /*[[${stats.dailyCreation}]]*/ [];
+    const dates = dailyData.map(item => {
+        const [year, month, day] = item.date.split('-');
+        return new Date(year, month-1, day).toLocaleDateString();
+    });
+    const counts = dailyData.map(item => item.count);
+
+    new Chart(document.getElementById('dailyChart'), {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: '일별 생성 수',
+                data: counts,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    display: true,
+                    title: { display: true, text: '날짜' }
+                },
+                y: {
+                    display: true,
+                    title: { display: true, text: '생성 수' },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+/*]]>*/
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html> 
