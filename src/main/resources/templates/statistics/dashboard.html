@@ -127,7 +127,7 @@
                     <tr th:each="type : ${stats.gifticonTypes}">
                         <td th:text="${type.name}">미지정</td>
                         <td th:text="${type.count}">0</td>
-                        <td th:text="${#numbers.formatDecimal((type.count / stats.totalBoxes) * 100, 1, 1)} + '%'">0%</td>
+                        <td th:text="${#numbers.formatDecimal((type.count * 100.0 / stats.totalBoxes), 1, 1)} + '%'">0%</td>
                     </tr>
                 </tbody>
             </table>
